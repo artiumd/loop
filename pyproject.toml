@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "loop"
+description = "Replace common looping boilerplate with pretty method chaining."
+authors = [{name = "Artium Dashuta", email = "artium89@gmail.com"}]
+version = "1.0.0"
+readme = "README.md"
+dependencies = ["tqdm"]
+requires-python = ">=3.7"
+license = {text = "MIT License"}
+
+
+[project.urls]
+Repository = "https://github.com/artiumd/loop"
