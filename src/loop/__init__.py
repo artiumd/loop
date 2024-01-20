@@ -1,1 +1,1 @@
-from .core import loop_over
+from .core import Loop, loop_over
