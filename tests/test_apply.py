@@ -32,7 +32,7 @@ def test_plus_one_times_two():
     assert_loops_as_expected(loop, out)
 
 
-def test_apply_assert_on_args_kwargs():
+def test_args_kwargs_values():
     args = (1, 'a', False)
     kwargs = {'a': [], 'b': {}, 'c': None}
 
@@ -47,13 +47,13 @@ def test_apply_assert_on_args_kwargs():
     assert_loops_as_expected(loop, out)
 
 
-def test_apply_type_error():
+def test_type_error():
     inp = range(10)
     loop = loop_over(inp).apply('not a function')
     assert_loop_raises(loop, TypeError)
 
 
-def test_apply_error_in_function():
+def test_error_in_function():
     def raise_error(x):
         raise RuntimeError
 
@@ -62,7 +62,7 @@ def test_apply_error_in_function():
     assert_loop_raises(loop, RuntimeError)
 
 
-def test_apply_wrong_signature():
+def test_wrong_signature():
     def takes_two(one, two):
         return one
 
@@ -71,7 +71,7 @@ def test_apply_wrong_signature():
     assert_loop_raises(loop, TypeError)
 
 
-def test_unpack_apply():
+def test_unpack():
     inp = [[1,2], [4,7], [9,15], [6,6]]
     out = [3,11,24,12]
     loop = loop_over(inp).unpack_apply(lambda x, y: x + y)
