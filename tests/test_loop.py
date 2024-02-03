@@ -9,8 +9,12 @@ def test_empty():
 
 
 def test_range():
-    assert_loops_as_expected(loop_over(range(1, 100, 2)), range(1, 100, 2))
+    inp = range(1, 100, 2)
+    out = range(1, 100, 2)
+    loop = loop_over(inp)
+    assert_loops_as_expected(loop, out)
 
 
 def test_type_error():
-    assert_loop_raises(loop_over(10), TypeError)
+    loop = loop_over(10)
+    assert_loop_raises(loop, TypeError)

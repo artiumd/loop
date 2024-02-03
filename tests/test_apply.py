@@ -14,19 +14,22 @@ def test_empty():
 def test_plus_one():
     inp = [1, 2, 3, 4, 5, 6, 7, 8]
     out = [x + 1 for x in inp]
-    assert_loops_as_expected(loop_over(inp).apply(lambda x: x + 1), out)
+    loop = loop_over(inp).apply(lambda x: x + 1)
+    assert_loops_as_expected(loop, out)
 
 
 def test_times_two_plus_one():
     inp = [1, 2, 3, 4, 5, 6, 7, 8]
     out = [(2 * x) + 1 for x in inp]
-    assert_loops_as_expected(loop_over(inp).apply(lambda x: 2*x).apply(lambda x: x + 1), out)
+    loop = loop_over(inp).apply(lambda x: 2*x).apply(lambda x: x + 1)
+    assert_loops_as_expected(loop, out)
 
 
 def test_plus_one_times_two():
     inp = [1, 2, 3, 4, 5, 6, 7, 8]
     out = [(x + 1) * 2 for x in inp]
-    assert_loops_as_expected(loop_over(inp).apply(lambda x: x + 1).apply(lambda x: 2*x), out)
+    loop = loop_over(inp).apply(lambda x: x + 1).apply(lambda x: 2*x)
+    assert_loops_as_expected(loop, out)
 
 
 def test_apply_assert_on_args_kwargs():
@@ -38,26 +41,38 @@ def test_apply_assert_on_args_kwargs():
         assert kwargs_ == kwargs
         return x
 
-    assert_loops_as_expected(loop_over(range(10)).apply(function, *args, **kwargs), range(10))
+    inp = range(10)
+    out = range(10)
+    loop = loop_over(inp).apply(function, *args, **kwargs)
+    assert_loops_as_expected(loop, out)
 
 
 def test_apply_type_error():
-    assert_loop_raises(loop_over(range(10)).apply('not a function'), TypeError)
+    inp = range(10)
+    loop = loop_over(inp).apply('not a function')
+    assert_loop_raises(loop, TypeError)
 
 
 def test_apply_error_in_function():
     def raise_error(x):
         raise RuntimeError
 
-    assert_loop_raises(loop_over(range(10)).apply(raise_error), RuntimeError)
+    inp = range(10)
+    loop = loop_over(inp).apply(raise_error)
+    assert_loop_raises(loop, RuntimeError)
 
 
 def test_apply_wrong_signature():
     def takes_two(one, two):
         return one
 
-    assert_loop_raises(loop_over(range(10)).apply(takes_two), TypeError)
+    inp = range(10)
+    loop = loop_over(inp).apply(takes_two)
+    assert_loop_raises(loop, TypeError)
 
 
 def test_unpack_apply():
-    assert_loops_as_expected(loop_over([[1,2], [4,7], [9,15], [6,6]]).unpack_apply(lambda x, y: x + y), [3,11,24,12])
+    inp = [[1,2], [4,7], [9,15], [6,6]]
+    out = [3,11,24,12]
+    loop = loop_over(inp).unpack_apply(lambda x, y: x + y)
+    assert_loops_as_expected(loop, out)
