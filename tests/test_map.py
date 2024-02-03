@@ -7,28 +7,28 @@ def test_empty():
     def raise_error(x):
         raise RuntimeError
 
-    for _  in loop_over([]).apply(raise_error):
+    for _  in loop_over([]).map(raise_error):
         assert False
 
 
 def test_plus_one():
     inp = [1, 2, 3, 4, 5, 6, 7, 8]
     out = [x + 1 for x in inp]
-    loop = loop_over(inp).apply(lambda x: x + 1)
+    loop = loop_over(inp).map(lambda x: x + 1)
     assert_loops_as_expected(loop, out)
 
 
 def test_times_two_plus_one():
     inp = [1, 2, 3, 4, 5, 6, 7, 8]
     out = [(2 * x) + 1 for x in inp]
-    loop = loop_over(inp).apply(lambda x: 2*x).apply(lambda x: x + 1)
+    loop = loop_over(inp).map(lambda x: 2*x).map(lambda x: x + 1)
     assert_loops_as_expected(loop, out)
 
 
 def test_plus_one_times_two():
     inp = [1, 2, 3, 4, 5, 6, 7, 8]
     out = [(x + 1) * 2 for x in inp]
-    loop = loop_over(inp).apply(lambda x: x + 1).apply(lambda x: 2*x)
+    loop = loop_over(inp).map(lambda x: x + 1).map(lambda x: 2*x)
     assert_loops_as_expected(loop, out)
 
 
@@ -43,13 +43,13 @@ def test_args_kwargs_values():
 
     inp = range(10)
     out = range(10)
-    loop = loop_over(inp).apply(function, *args, **kwargs)
+    loop = loop_over(inp).map(function, *args, **kwargs)
     assert_loops_as_expected(loop, out)
 
 
 def test_type_error():
     inp = range(10)
-    loop = loop_over(inp).apply('not a function')
+    loop = loop_over(inp).map('not a function')
     assert_loop_raises(loop, TypeError)
 
 
@@ -58,7 +58,7 @@ def test_error_in_function():
         raise RuntimeError
 
     inp = range(10)
-    loop = loop_over(inp).apply(raise_error)
+    loop = loop_over(inp).map(raise_error)
     assert_loop_raises(loop, RuntimeError)
 
 
@@ -67,20 +67,20 @@ def test_wrong_signature():
         return one
 
     inp = range(10)
-    loop = loop_over(inp).apply(takes_two)
+    loop = loop_over(inp).map(takes_two)
     assert_loop_raises(loop, TypeError)
 
 
 def test_unpack():
     inp = [[1,2], [4,7], [9,15], [6,6]]
     out = [x[0] + x[1] for x in inp]
-    loop = loop_over(inp).unpack_apply(lambda x, y: x + y)
+    loop = loop_over(inp).unpack_map(lambda x, y: x + y)
     assert_loops_as_expected(loop, out)
 
 
 def test_unpackable():
     inp = range(10)
-    loop = loop_over(inp).unpack_apply(lambda x: x)
+    loop = loop_over(inp).unpack_map(lambda x: x)
     assert_loop_raises(loop, TypeError)
 
 
@@ -91,7 +91,7 @@ def test_side_effects():
     def append_to_out(x):
         out.append(x)
 
-    for _ in loop_over(inp).apply(append_to_out):
+    for _ in loop_over(inp).map(append_to_out):
         pass
 
     assert out == list(inp)
@@ -100,5 +100,5 @@ def test_side_effects():
 def test_combo():
     inp = [1, 2, 3, 4, 5, 6, 7, 8]
     out = [((x - 1/x) ** 2, x) for x in inp]
-    loop = loop_over(inp).apply(lambda x: (x, 1/x)).unpack_apply(lambda x, y: ((x - y) ** 2, x))
+    loop = loop_over(inp).map(lambda x: (x, 1/x)).unpack_map(lambda x, y: ((x - y) ** 2, x))
     assert_loops_as_expected(loop, out)

@@ -14,7 +14,7 @@ class Function(Protocol):
         ...
 
 
-class FunctionApplier:
+class Mapper:
     __slots__ = ('_args', '_kwargs', '_function')
 
     def __init__(self, function: Function, *args: A, **kwargs: K):
@@ -26,7 +26,7 @@ class FunctionApplier:
         return self._function(inp, *self._args, **self._kwargs)
 
 
-class UnpackerFunctionApplier(FunctionApplier):
+class UnpackerMapper(Mapper):
     __slots__ = ()
 
     def __call__(self, inp: T) -> R:
@@ -36,34 +36,32 @@ class UnpackerFunctionApplier(FunctionApplier):
 class Loop:
     def __init__(self, iterable: Iterable[T]):
         self._iterable = iterable
-        self._functions = []
+        self._mappers = []
 
-    def apply(self, function: Function, *args: A, **kwargs: K) -> 'Loop':
+    def map(self, function: Function, *args: A, **kwargs: K) -> 'Loop':
         """
         Apply `function` to each `item` in `iterable` by calling `function(item, *args, **kwargs)`.
-
-        `apply()` may be called multiple times, this will cause multiple functions to be applied (in the same order).
 
         !!! note
 
             This is not the same as applying `functools.partial(function, *args, **kwargs)` to `item` because it would translate to `function(*args, item, **kwargs)`.
         """
-        self._functions.append(FunctionApplier(function, *args, **kwargs))
+        self._mappers.append(Mapper(function, *args, **kwargs))
         return self
 
-    def unpack_apply(self, function: Function, *args: A, **kwargs: K) -> 'Loop':
+    def unpack_map(self, function: Function, *args: A, **kwargs: K) -> 'Loop':
         """
-        This is the same as `apply()` except that the `item` from `iterable` is star unpacked as it is passed to `function` i.e. `function(*item, *args, **kwargs)`.
+        This is the same as `map()` except that the `item` from `iterable` is star unpacked as it is passed to `function` i.e. `function(*item, *args, **kwargs)`.
         """
-        self._functions.append(UnpackerFunctionApplier(function, *args, **kwargs))
+        self._mappers.append(UnpackerMapper(function, *args, **kwargs))
         return self
 
     def __iter__(self) -> Iterator[R]:
         for inp in self._iterable:
             out = inp
 
-            for function in self._functions:
-                out = function(out)
+            for mapper in self._mappers:
+                out = mapper(out)
 
             yield out
 
