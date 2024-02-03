@@ -73,7 +73,7 @@ def test_wrong_signature():
 
 def test_unpack():
     inp = [[1,2], [4,7], [9,15], [6,6]]
-    out = [3,11,24,12]
+    out = [x[0] + x[1] for x in inp]
     loop = loop_over(inp).unpack_apply(lambda x, y: x + y)
     assert_loops_as_expected(loop, out)
 
@@ -89,3 +89,10 @@ def test_side_effects():
         pass
 
     assert out == list(inp)
+
+
+def test_combo():
+    inp = [1, 2, 3, 4, 5, 6, 7, 8]
+    out = [((x - 1/x) ** 2, x) for x in inp]
+    loop = loop_over(inp).apply(lambda x: (x, 1/x)).unpack_apply(lambda x, y: ((x - y) ** 2, x))
+    assert_loops_as_expected(loop, out)
