@@ -4,7 +4,8 @@ from .utilities import assert_loops_as_expected, assert_loop_raises
 
 
 def test_empty():
-    assert_loops_as_expected(loop_over([]), [])
+    for _ in loop_over([]):
+        assert False
 
 
 def test_range():
