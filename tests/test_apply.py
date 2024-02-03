@@ -76,3 +76,16 @@ def test_unpack_apply():
     out = [3,11,24,12]
     loop = loop_over(inp).unpack_apply(lambda x, y: x + y)
     assert_loops_as_expected(loop, out)
+
+
+def test_side_effects():
+    inp = range(10)
+    out = []
+
+    def append_to_out(x):
+        out.append(x)
+
+    for _ in loop_over(inp).apply(append_to_out):
+        pass
+
+    assert out == list(inp)
