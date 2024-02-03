@@ -54,6 +54,15 @@ class Loop:
         self._mappers.append(UnpackerMapper(function, *args, **kwargs))
         return self
 
+    def exhaust(self) -> None:
+        """
+        Consume the underlying iterator without returning any results.
+
+        This maybe useful when you map functions only for their side effects.
+        """
+        for _ in self:
+            pass
+
     def __iter__(self) -> Iterator[R]:
         for inp in self._iterable:
             out = inp

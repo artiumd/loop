@@ -18,3 +18,11 @@ def test_range():
 def test_type_error():
     loop = loop_over(10)
     assert_loop_raises(loop, TypeError)
+
+
+def test_exhaust():
+    inp = list(range(10))
+    out = []
+    result = loop_over(inp).map(out.append).exhaust()
+    assert result is None
+    assert out == inp

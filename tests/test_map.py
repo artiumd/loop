@@ -78,7 +78,7 @@ def test_unpack():
     assert_loops_as_expected(loop, out)
 
 
-def test_unpackable():
+def test_not_unpackable():
     inp = range(10)
     loop = loop_over(inp).unpack_map(lambda x: x)
     assert_loop_raises(loop, TypeError)
@@ -88,10 +88,7 @@ def test_side_effects():
     inp = range(10)
     out = []
 
-    def append_to_out(x):
-        out.append(x)
-
-    for _ in loop_over(inp).map(append_to_out):
+    for _ in loop_over(inp).map(out.append):
         pass
 
     assert out == list(inp)
