@@ -3,8 +3,12 @@ from src.loop import loop_over
 from .utilities import assert_loop_raises, assert_loops_as_expected
 
 
-def test_apply_empty():
-    assert_loops_as_expected(loop_over([]).apply(lambda x: None), [])
+def test_empty():
+    def raise_error(x):
+        raise RuntimeError
+
+    for _  in loop_over([]).apply(raise_error):
+        assert False
 
 
 def test_apply_plus_one():
