@@ -78,6 +78,12 @@ def test_unpack():
     assert_loops_as_expected(loop, out)
 
 
+def test_unpackable():
+    inp = range(10)
+    loop = loop_over(inp).unpack_apply(lambda x: x)
+    assert_loop_raises(loop, TypeError)
+
+
 def test_side_effects():
     inp = range(10)
     out = []
