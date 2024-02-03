@@ -19,5 +19,9 @@ classifiers = [
 ]
 
 
+[project.optional-dependencies]
+tests = ["pytest==7.4.4"]
+
+
 [project.urls]
 Repository = "https://github.com/artiumd/loop"
