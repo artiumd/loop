@@ -21,6 +21,7 @@ classifiers = [
 
 [project.optional-dependencies]
 tests = ["pytest==7.4.4"]
+docs = ["mkdocs==1.5.3", "mkdocs-material==9.5.7"]
 
 
 [project.urls]
