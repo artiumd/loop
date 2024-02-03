@@ -11,12 +11,22 @@ def test_empty():
         assert False
 
 
-def test_apply_plus_one():
-    assert_loops_as_expected(loop_over(range(1, 100, 2)).apply(lambda x: x + 1), range(2, 101, 2))
+def test_plus_one():
+    inp = [1, 2, 3, 4, 5, 6, 7, 8]
+    out = [x + 1 for x in inp]
+    assert_loops_as_expected(loop_over(inp).apply(lambda x: x + 1), out)
 
 
-def test_apply_plus_one_then_plus_one():
-    assert_loops_as_expected(loop_over(range(1, 100, 2)).apply(lambda x: x + 1).apply(lambda x: x + 1), range(3, 102, 2))
+def test_times_two_plus_one():
+    inp = [1, 2, 3, 4, 5, 6, 7, 8]
+    out = [(2 * x) + 1 for x in inp]
+    assert_loops_as_expected(loop_over(inp).apply(lambda x: 2*x).apply(lambda x: x + 1), out)
+
+
+def test_plus_one_times_two():
+    inp = [1, 2, 3, 4, 5, 6, 7, 8]
+    out = [(x + 1) * 2 for x in inp]
+    assert_loops_as_expected(loop_over(inp).apply(lambda x: x + 1).apply(lambda x: 2*x), out)
 
 
 def test_apply_assert_on_args_kwargs():
