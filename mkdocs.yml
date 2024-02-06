@@ -9,4 +9,15 @@ theme:
     - navigation.instant
     - navigation.instant.progress
     - navigation.tracking
-    #- navigation.tabs
+    # - navigation.tabs
+
+markdown_extensions:
+  - pymdownx.superfences
+  # - pymdownx.highlight
+      # use_pygments: true
+  # - codehilite
+
+nav:
+  - Introduction: 'index.md'
+  - Guide: 'guide.md'
+  - "API Reference": 'api.md'
