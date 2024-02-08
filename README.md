@@ -13,7 +13,7 @@ pip install loop-python
 
 ## Example
 
-The following code:
+Loop over `range(20)`, apply the `fibo()` function and then, on top of it, apply the `fizzbuzz()` function, finally, apply `print()` all in one line.
 
 ``` python
 from loop import loop_over
