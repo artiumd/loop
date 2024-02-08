@@ -52,6 +52,8 @@ jobs:
   
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://pypi.org/
 
   github-release:
     name: Sign the distribution with Sigstore and upload them to GitHub Release
