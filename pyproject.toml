@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 dynamic = ["version"]
-name = "loop"
+name = "loop-python"
 description = "Replace common looping boilerplate with pretty method chaining."
 authors = [{name = "Artium Dashuta", email = "artium89@gmail.com"}]
 readme = "README.md"
