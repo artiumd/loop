@@ -11,6 +11,10 @@ Replace common looping boilerplate with pretty method chaining.
 pip install loop-python
 ```
 
+## Documentation 
+
+Visit the [documentation site](https://artiumd.github.io/loop).
+
 ## Example
 
 Loop over `range(20)`, apply the `fibo()` function and then, on top of it, apply the `fizzbuzz()` function, finally, apply `print()`:
