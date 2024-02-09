@@ -2,39 +2,13 @@
 
 At its core, `loop` provides wrappers around iterables (to which we can add some enhancements).
 
-``` python
-
-from loop import loop_over
-
-
-for word in loop_over(['Hello', 'World', '!']):
-    print(word)
-```
-
-``` console
-Hello
-World
-!
-```
+--8<-- "docs/examples/minimal.md"
 
 ## Mapping Functions To Loops
 
 Using the `map()` method we can apply a function to each of the iterable:
 
-``` python
-
-from loop import loop_over
-
-
-for word in loop_over(['Hello', 'World', '!']).map(lambda s: s.upper()):
-    print(word)
-```
-
-``` console
-HELLO
-WORLD
-!
-```
+--8<-- "docs/examples/map_single.md"
 
 ### Chaining And Additional Arguments
 

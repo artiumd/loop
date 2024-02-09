@@ -40,23 +40,34 @@ class Loop:
         """
         Apply `function` to each `item` in `iterable` by calling `function(item, *args, **kwargs)`.
 
+        Example:
+            --8<-- "docs/examples/map_single.md"
+
+        Args:
+            function: Function to be applied on each item in the loop.
+            args: Passed as `*args` (after the loop item) to each call to `function`.
+            kwargs: Passed as `**kwargs` to each call to `function`.
+
+        Returns:
+            Returns `self` to allow for further method chaining.
+
         !!! note
 
-            This is not the same as applying `functools.partial(function, *args, **kwargs)` to `item` because it would translate to `function(*args, item, **kwargs)`.
+            Applying ` map(function, *args, **kwargs)` is not the same as applying `map(functools.partial(function, *args, **kwargs))` because `functools.partial` passes `*args` BEFORE the loop item.
         """
         self._mappers.append(Mapper(function, *args, **kwargs))
         return self
 
     def unpack_map(self, function: Function, *args: A, **kwargs: K) -> 'Loop':
         """
-        This is the same as `map()` except that the `item` from `iterable` is star unpacked as it is passed to `function` i.e. `function(*item, *args, **kwargs)`.
+        This is the same as [`map()`][loop.Loop.map] except that the `item` from `iterable` is star unpacked as it is passed to `function` i.e. `function(*item, *args, **kwargs)`.
         """
         self._mappers.append(UnpackerMapper(function, *args, **kwargs))
         return self
 
     def exhaust(self) -> None:
         """
-        Consume the underlying iterator without returning any results.
+        Consume the loop without returning any results.
 
         This maybe useful when you map functions only for their side effects.
         """
@@ -77,5 +88,14 @@ def loop_over(iterable: Iterable[T]) -> Loop:
     """Construct a new `Loop`.
 
     Customize the looping behaviour by chaining different `Loop` methods and finally use a `for` statement like you normally would.
+
+    Example:
+        --8<-- "docs/examples/minimal.md"
+
+    Args:
+        iterable: The object to be looped over.
+
+    Returns:
+        Returns a new `Loop` instance wrapping `iterable`.
     """
     return Loop(iterable)

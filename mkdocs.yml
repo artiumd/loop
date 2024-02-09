@@ -1,21 +1,46 @@
 site_name: Loop
 repo_url: https://github.com/artiumd/loop
+site_url: https://artiumd.github.io/loop/
+
+
+extra:
+  version:
+    provider: mike
+    default: latest
+
+
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: false
+            show_root_heading: true
+            heading_level: 3
+            show_signature_annotations: true
+            # separate_signature: true
+            docstring_section_style: spacy
+
 
 theme:
   name: material
+  custom_dir: docs/overrides/
   icon:
     repo: fontawesome/brands/github
   features:
     - navigation.instant
     - navigation.instant.progress
     - navigation.tracking
-    # - navigation.tabs
+
 
 markdown_extensions:
+  - admonition
+  - pymdownx.details
   - pymdownx.superfences
-  # - pymdownx.highlight
-      # use_pygments: true
-  # - codehilite
+  - pymdownx.snippets:
+      check_paths: true
+
 
 nav:
   - Introduction: 'index.md'
