@@ -123,7 +123,7 @@ jobs:
         run: |
           git config user.name ci-bot
           git config user.email ci-bot@example.com
-          git config pull.ff only
+          git config pull.rebase false
           git pull origin gh-pages
           mike deploy --push --update-aliases '${{ github.ref_name }}' latest
           mike set-default --push latest
