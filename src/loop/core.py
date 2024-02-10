@@ -1,10 +1,14 @@
 from typing import Iterable, Iterator, TypeVar, Protocol
+from functools import reduce
 
 
 T = TypeVar('T')
 A = TypeVar('A')
 K = TypeVar('K')
 R = TypeVar('R')
+
+
+_missing = object()
 
 
 class Function(Protocol):
@@ -104,6 +108,7 @@ class Loop:
             ```python
             from loop import loop_over
 
+
             items = []
             loop_over(range(5)).map(items.append).exhaust()
             print(items)
@@ -115,6 +120,33 @@ class Loop:
         for _ in self:
             pass
 
+    def reduce(self, function, initializer=_missing):
+        """
+        Consume the loop and reduce it to a single value using `function`.
+
+        `function` and (the optional) `initializer` have the same 
+        meaning as in [`functools.reduce()`](https://docs.python.org/3/library/functools.html#functools.reduce).
+
+        Example:
+            ```python
+            from loop import loop_over
+
+
+            vec = [-1.1, 25.3, 4.9]
+            sum_squares = loop_over(vec).map(lambda x: x**2).reduce(lambda x,y: x+y)
+            print(f'The L2 norm of {vec} equals {sum_squares**0.5:.2f}')
+            ```
+            ```console
+            The L2 norm of [-1.1, 25.3, 4.9] equals 25.79
+            ```
+        """
+        if initializer is _missing:
+            initializer = ()
+        else:
+            initializer = (initializer, )
+
+        return reduce(function, self, *initializer)
+
     def __iter__(self) -> Iterator[R]:
         """
         The most common way to consume a loop is to simply iterate over it.
@@ -122,6 +154,7 @@ class Loop:
         Example:
             ```python
             from loop import loop_over
+
 
             items = ...
 

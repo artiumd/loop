@@ -10,7 +10,6 @@ The usage of the library usually follows the following pattern:
 
 ::: loop.loop_over
 
-
 ## Modifier Methods
 
 ::: loop.Loop.map
@@ -22,3 +21,5 @@ The usage of the library usually follows the following pattern:
 ::: loop.Loop.__iter__
 
 ::: loop.Loop.exhaust
+
+::: loop.Loop.reduce
