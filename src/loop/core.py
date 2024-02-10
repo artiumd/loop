@@ -61,6 +61,35 @@ class Loop:
     def unpack_map(self, function: Function, *args: A, **kwargs: K) -> 'Loop':
         """
         This is the same as [`map()`][loop.Loop.map] except that the `item` from `iterable` is star unpacked as it is passed to `function` i.e. `function(*item, *args, **kwargs)`.
+        
+        Example:
+            ``` python
+            from pathlib import Path
+
+            from loop import loop_over
+
+
+            def touch(root, *parts, name):
+                path = Path(root).joinpath(*parts, name)
+                path.parent.mkdir(exist_ok=True, parents=True)
+                path.joinpath(name).touch()
+                return str(path)
+
+                
+            paths = [['/tmp', 'foo'], 
+                     ['/home', 'user', 'bar'], 
+                     ['/var', 'log.txt']]
+
+     
+            for path in loop_over(paths).unpack_map(touch):
+                print(f'Created {path}')
+            ```
+
+            ``` console
+            Created /tmp/foo
+            Created /home/user/bar
+            Created /var/log.txt
+            ```
         """
         self._mappers.append(UnpackerMapper(function, *args, **kwargs))
         return self
@@ -70,11 +99,37 @@ class Loop:
         Consume the loop without returning any results.
 
         This maybe useful when you map functions only for their side effects.
+
+        Example:
+            ```python
+            from loop import loop_over
+
+            items = []
+            loop_over(range(5)).map(items.append).exhaust()
+            print(items)
+            ```
+            ```console
+            [0, 1, 2, 3, 4]
+            ```
         """
         for _ in self:
             pass
 
     def __iter__(self) -> Iterator[R]:
+        """
+        The most common way to consume a loop is to simply iterate over it.
+
+        Example:
+            ```python
+            from loop import loop_over
+
+            items = ...
+
+            for item in loop_over(items):
+                # Do something with item
+                pass
+            ```
+        """
         for inp in self._iterable:
             out = inp
 

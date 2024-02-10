@@ -19,6 +19,7 @@ In this example, we compute the 5 first powers of π, rounded to two decimal pla
 ``` python
 
 from math import pi
+
 from loop import loop_over
 
 
@@ -46,6 +47,7 @@ Just use `unpack_map()`! In the following example, we convert 4 complex numbers 
 
 from math import degrees
 from cmath import polar
+
 from loop import loop_over
 
 

@@ -16,3 +16,9 @@ The usage of the library usually follows the following pattern:
 ::: loop.Loop.map
 
 ::: loop.Loop.unpack_map
+
+## Consumer Methods
+
+::: loop.Loop.__iter__
+
+::: loop.Loop.exhaust
