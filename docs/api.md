@@ -18,6 +18,8 @@ The usage of the library usually follows the following pattern:
 
 ::: loop.Loop.next_call_with
 
+::: loop.Loop.returning
+
 ## Consumer Methods
 
 ::: loop.Loop.__iter__

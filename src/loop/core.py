@@ -2,6 +2,7 @@ from typing import Iterable, Iterator, TypeVar, Literal, Tuple, Dict, Optional
 from functools import reduce
 
 from .functional import args_last_adapter, args_first_adapter, tuple_unpack_args_last_adapter, tuple_unpack_args_first_adapter, dict_unpack_adapter, filter_adapter, skipped
+from .packing import return_first, return_first_and_second, return_first_and_third, return_first_second_and_third, return_second, return_second_and_third, return_third, return_none
 
 
 T = TypeVar('T')
@@ -18,6 +19,10 @@ class Loop:
         self._iterable = iterable
         self._functions = []
         self._next_call_spec: Tuple[Optional[Literal['*', '**']], bool] = (None, False)
+
+        self._retval_packer = return_third
+        self._returning_inputs = False
+        self._returning_outputs = True
 
     def next_call_with(self, unpacking: Optional[Literal['*', '**']] = None, args_first: bool = False) -> 'Loop':
         """
@@ -97,6 +102,62 @@ class Loop:
         """
         self._set_map_or_filter(predicate, args, kwargs, filtering=True)
         return self
+    
+    def returning(self, enumerations: bool = False, inputs: bool = False, outputs: bool = True) -> 'Loop':
+        """
+        Set the return type of this loop.
+
+        By default, only outputs are returned.
+
+        The order of returned items is `(enumerations, inputs, outputs)`.
+
+        Example:
+            ``` python
+
+            from loop import loop_over
+
+
+            for retval in loop_over(range(0, 10, 2)).map(pow, 2).returning(enumerations=True, inputs=True, outputs=True):
+                print(retval)
+            ```
+
+            ``` console
+            (0, 0, 0) 
+            (1, 2, 4) 
+            (2, 4, 16)
+            (3, 6, 36)
+            (4, 8, 64)
+            ```
+
+        Args:
+            enumerations: If True, return value will include the (zero-based) index of the current iteration.
+            inputs: If True, return value will include the raw value from the underlying iterable, before any [`map()`][loop.Loop.map] has been applied.
+            outputs: If True, return value will include the output of the last [`map()`][loop.Loop.map] operation.
+
+        Returns:
+            Returns `self` to allow for further method chaining.
+        """
+        if not enumerations and not inputs and not outputs:  # 000
+            self._retval_packer = return_none
+        elif not enumerations and not inputs and outputs:  # 001
+            self._retval_packer = return_third
+        elif not enumerations and inputs and not outputs:  # 010
+            self._retval_packer = return_second
+        elif not enumerations and inputs and outputs:  # 011
+            self._retval_packer = return_second_and_third
+        elif enumerations and not inputs and not outputs:  # 100
+            self._retval_packer = return_first
+        elif enumerations and not inputs and outputs:  # 101
+            self._retval_packer = return_first_and_third
+        elif enumerations and inputs and not outputs:  # 110
+            self._retval_packer = return_first_and_second
+        elif enumerations and inputs and outputs:  # 111
+            self._retval_packer = return_first_second_and_third
+
+        self._returning_inputs = inputs
+        self._returning_outputs = outputs
+
+        return self
 
     def exhaust(self) -> None:
         """
@@ -163,7 +224,7 @@ class Loop:
                 pass
             ```
         """
-        for inp in self._iterable:
+        for i, inp in enumerate(self._iterable):
             out = inp
 
             for function in self._functions:
@@ -172,7 +233,7 @@ class Loop:
                 if out is skipped:
                     break
             else:
-                yield out
+                yield self._retval_packer(i, inp, out)
 
     def _set_map_or_filter(self, function, args: Tuple[A, ...], kwargs: Dict[str, K], filtering: bool) -> None:
         unpacking, args_first = self._next_call_spec

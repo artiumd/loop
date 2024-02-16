@@ -1,5 +1,6 @@
-from typing import TypeVar, Protocol, Type, Callable, TypeVar, Union
+from typing import Protocol, Type, Callable, TypeVar, Union
 from functools import wraps
+
 
 T = TypeVar('T')
 A = TypeVar('A')
