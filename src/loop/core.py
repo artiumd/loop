@@ -1,5 +1,7 @@
-from typing import Iterable, Iterator, TypeVar, Protocol
+from typing import Iterable, Iterator, TypeVar, Literal, Tuple, Dict, Optional
 from functools import reduce
+
+from .functional import args_last_adapter, args_first_adapter, tuple_unpack_args_last_adapter, tuple_unpack_args_first_adapter, dict_unpack_adapter, filter_adapter, skipped
 
 
 T = TypeVar('T')
@@ -11,36 +13,37 @@ R = TypeVar('R')
 _missing = object()
 
 
-class Function(Protocol):
-    def __call__(self, *args: A, **kwargs: K) -> R:
-        ...
-
-
-class Mapper:
-    __slots__ = ('_args', '_kwargs', '_function')
-
-    def __init__(self, function: Function, *args: A, **kwargs: K):
-        self._args = args
-        self._kwargs = kwargs
-        self._function = function
-
-    def __call__(self, inp: T) -> R:
-        return self._function(inp, *self._args, **self._kwargs)
-
-
-class UnpackerMapper(Mapper):
-    __slots__ = ()
-
-    def __call__(self, inp: T) -> R:
-        return self._function(*inp, *self._args, **self._kwargs)
-
-
 class Loop:
     def __init__(self, iterable: Iterable[T]):
         self._iterable = iterable
-        self._mappers = []
+        self._functions = []
+        self._next_call_spec: Tuple[Optional[Literal['*', '**']], bool] = (None, False)
 
-    def map(self, function: Function, *args: A, **kwargs: K) -> 'Loop':
+    def next_call_with(self, unpacking: Optional[Literal['*', '**']] = None, args_first: bool = False) -> 'Loop':
+        """
+        Change how arguments are passed to `function` in [`map()`][loop.Loop.map] (or `predicate` in [`filter()`][loop.Loop.filter]).
+
+        Arguments are explained using the following table:
+
+        | `unpacking` | `args_first` | Resulting Call                                                 |
+        |-------------|--------------|-----------------------------------------------------------------
+        |    `None`   |    `False`   | `func(x, *args, **kwargs)` (this is the default behaviour)     |
+        |    `None`   |    `True`    | `func(*args, x, **kwargs)`                                     |
+        |    `"*"`    |    `False`   | `func(*x, *args, **kwargs)`                                    |
+        |    `"*"`    |    `True`    | `func(*args, *x, **kwargs)`                                    |
+        |    `"**"`   |    `Any`     | `func(*args, **x, **kwargs)`                                   |
+
+        Returns:
+            Returns `self` to allow for further method chaining.
+
+        !!! note
+
+            Each invocation of `next_call_with()` applies only to the next `map()`/`filter()`, subsequent calls will resume to default behaviour.
+        """
+        self._next_call_spec = (unpacking, args_first)
+        return self
+
+    def map(self, function, *args: A, **kwargs: K) -> 'Loop':
         """
         Apply `function` to each `item` in `iterable` by calling `function(item, *args, **kwargs)`.
 
@@ -49,7 +52,7 @@ class Loop:
 
         Args:
             function: Function to be applied on each item in the loop.
-            args: Passed as `*args` (after the loop item) to each call to `function`.
+            args: Passed as `*args` (after the loop variable) to each call to `function`.
             kwargs: Passed as `**kwargs` to each call to `function`.
 
         Returns:
@@ -57,45 +60,42 @@ class Loop:
 
         !!! note
 
-            Applying ` map(function, *args, **kwargs)` is not the same as applying `map(functools.partial(function, *args, **kwargs))` because `functools.partial` passes `*args` BEFORE the loop item.
+            By default, applying ` map(function, *args, **kwargs)` is not the same as applying `map(functools.partial(function, *args, **kwargs))` because `functools.partial` passes `*args` BEFORE the loop item.
         """
-        self._mappers.append(Mapper(function, *args, **kwargs))
+        self._set_map_or_filter(function, args, kwargs, filtering=False)
         return self
 
-    def unpack_map(self, function: Function, *args: A, **kwargs: K) -> 'Loop':
+    def filter(self, predicate, *args: A, **kwargs: K) -> 'Loop':
         """
-        This is the same as [`map()`][loop.Loop.map] except that the `item` from `iterable` is star unpacked as it is passed to `function` i.e. `function(*item, *args, **kwargs)`.
-        
+        Skip items for which `predicate(item, *args, **kwargs)` is false.
+
         Example:
             ``` python
-            from pathlib import Path
 
             from loop import loop_over
 
 
-            def touch(root, *parts, name):
-                path = Path(root).joinpath(*parts, name)
-                path.parent.mkdir(exist_ok=True, parents=True)
-                path.joinpath(name).touch()
-                return str(path)
-
-                
-            paths = [['/tmp', 'foo'], 
-                     ['/home', 'user', 'bar'], 
-                     ['/var', 'log.txt']]
-
-     
-            for path in loop_over(paths).unpack_map(touch):
-                print(f'Created {path}')
+            for number in loop_over(range(10)).filter(lambda x: x%2==0):
+                print(number)
             ```
 
             ``` console
-            Created /tmp/foo
-            Created /home/user/bar
-            Created /var/log.txt
+            0
+            2
+            4
+            6
+            8
             ```
+        
+        Args:
+            predicate: Function that accepts the loop variable and returns a boolean.
+            args: Passed as `*args` (after the loop variable) to each call to `predicate`.
+            kwargs: Passed as `**kwargs` to each call to `predicate`.
+
+        Returns:
+            Returns `self` to allow for further method chaining.
         """
-        self._mappers.append(UnpackerMapper(function, *args, **kwargs))
+        self._set_map_or_filter(predicate, args, kwargs, filtering=True)
         return self
 
     def exhaust(self) -> None:
@@ -166,10 +166,37 @@ class Loop:
         for inp in self._iterable:
             out = inp
 
-            for mapper in self._mappers:
-                out = mapper(out)
+            for function in self._functions:
+                out = function(out)
 
-            yield out
+                if out is skipped:
+                    break
+            else:
+                yield out
+
+    def _set_map_or_filter(self, function, args: Tuple[A, ...], kwargs: Dict[str, K], filtering: bool) -> None:
+        unpacking, args_first = self._next_call_spec
+        self._next_call_spec = (None, False)
+
+        if unpacking == '**':
+            adapter = dict_unpack_adapter
+        elif unpacking == '*':
+            if args_first:
+                adapter = tuple_unpack_args_first_adapter
+            else:
+                adapter = tuple_unpack_args_last_adapter
+        else:
+            if args_first:
+                adapter = args_first_adapter
+            else:
+                adapter = args_last_adapter
+
+        function = adapter(function, *args, **kwargs)
+
+        if filtering:
+            function = filter_adapter(function)
+
+        self._functions.append(function)
 
 
 def loop_over(iterable: Iterable[T]) -> Loop:
