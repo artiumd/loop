@@ -1,8 +1,9 @@
-from typing import Iterable, Iterator, TypeVar, Literal, Tuple, Dict, Optional
+from typing import Iterable, Iterator, TypeVar, Literal, Tuple, Dict, Optional, Union, Callable, Any
 from functools import reduce
 
 from .functional import args_last_adapter, args_first_adapter, tuple_unpack_args_last_adapter, tuple_unpack_args_first_adapter, dict_unpack_adapter, filter_adapter, skipped
 from .packing import return_first, return_first_and_second, return_first_and_third, return_first_second_and_third, return_second, return_second_and_third, return_third, return_none
+from .progress import dummy_progress, TqdmProgbar
 
 
 T = TypeVar('T')
@@ -23,6 +24,8 @@ class Loop:
         self._retval_packer = return_third
         self._returning_inputs = False
         self._returning_outputs = True
+
+        self._progbar = dummy_progress()
 
     def next_call_with(self, unpacking: Optional[Literal['*', '**']] = None, args_first: bool = False) -> 'Loop':
         """
@@ -159,6 +162,13 @@ class Loop:
 
         return self
 
+    def show_progress(self, postfix_str: Optional[Union[str, Callable[[Any], Any]]] = None, total: Optional[Union[int, Callable[[Iterable], int]]] = None, **kwargs) -> 'Loop':
+        if callable(total):
+            total = total(self._iterable)
+
+        self._progbar = TqdmProgbar(postfix_str=postfix_str, total=total, **kwargs)
+        return self
+
     def exhaust(self) -> None:
         """
         Consume the loop without returning any results.
@@ -224,16 +234,20 @@ class Loop:
                 pass
             ```
         """
-        for i, inp in enumerate(self._iterable):
-            out = inp
+        with self._progbar as progbar:
+            for i, inp in enumerate(self._iterable):
+                out = inp
 
-            for function in self._functions:
-                out = function(out)
+                for function in self._functions:
+                    out = function(out)
 
-                if out is skipped:
-                    break
-            else:
-                yield self._retval_packer(i, inp, out)
+                    if out is skipped:
+                        break
+                else:
+                    retval = self._retval_packer(i, inp, out)
+                    progbar(retval)
+
+                    yield retval
 
     def _set_map_or_filter(self, function, args: Tuple[A, ...], kwargs: Dict[str, K], filtering: bool) -> None:
         unpacking, args_first = self._next_call_spec
