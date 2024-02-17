@@ -162,11 +162,40 @@ class Loop:
 
         return self
 
-    def show_progress(self, postfix_str: Optional[Union[str, Callable[[Any], Any]]] = None, total: Optional[Union[int, Callable[[Iterable], int]]] = None, **kwargs) -> 'Loop':
+    def show_progress(self, refresh: bool = False, postfix_str: Optional[Union[str, Callable[[Any], Any]]] = None, total: Optional[Union[int, Callable[[Iterable], int]]] = None, **kwargs) -> 'Loop':
+        """
+        Display a [`tqdm.tqdm`](https://tqdm.github.io/docs/tqdm) progress bar as the iterable is being consumed.
+
+        Args:
+            refresh: If True, [`tqdm.refresh()`](https://tqdm.github.io/docs/tqdm/#refresh) will be called after every iteration, this makes the progress bar more responsive but reduces the
+                iteration rate.
+            postfix_str: Used for calling [`tqdm.set_postfix_str()`](https://tqdm.github.io/docs/tqdm/#set_postfix_str). If a string, it will be set only once in the beginning. 
+                If a callable, it accepts the loop variable, returns a postfix (which can be of any type) on top of which `str()` is applied.
+            total: Same as in [`tqdm.__init__()`](https://tqdm.github.io/docs/tqdm/#__init__), but can also be a callable that accepts an iterable and returns an int, which is used as the new `total`.
+            kwargs: Forwarded to [`tqdm.__init__()`](https://tqdm.github.io/docs/tqdm/#__init__) as-is.
+
+        Returns:
+            Returns `self` to allow for further method chaining.
+
+        !!! note
+
+            When `postfix_str` is callable, it always takes a single parameter, the value of which depends on what was set in [`returning()`][loop.Loop.returning].
+
+            For example:
+            
+            ```python
+
+            (loop_over(...).
+             returning(enumerations=True, inputs=True, outputs=True).
+             show_progress(postfix_str=lambda x: f'idx={x[0]},inp={x[1]},out={x[2]}'))
+            ```
+            
+            Here `x` is a tuple containing the current index, input and output.
+        """
         if callable(total):
             total = total(self._iterable)
 
-        self._progbar = TqdmProgbar(postfix_str=postfix_str, total=total, **kwargs)
+        self._progbar = TqdmProgbar(refresh, postfix_str, total=total, **kwargs)
         return self
 
     def exhaust(self) -> None:
@@ -275,7 +304,7 @@ class Loop:
 
 
 def loop_over(iterable: Iterable[T]) -> Loop:
-    """Construct a new `Loop`.
+    """Construct a new `Loop` that iterates over `iterable`.
 
     Customize the looping behaviour by chaining different `Loop` methods and finally use a `for` statement like you normally would.
 

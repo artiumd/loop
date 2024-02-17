@@ -20,6 +20,8 @@ The usage of the library usually follows the following pattern:
 
 ::: loop.Loop.returning
 
+::: loop.Loop.show_progress
+
 ## Consumer Methods
 
 ::: loop.Loop.__iter__

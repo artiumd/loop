@@ -10,16 +10,17 @@ def dummy_progress() -> Iterator[Callable[[Any], None]]:
 
 
 class TqdmProgbar:
-    def __init__(self, refresh: bool = False, postfix_str: Optional[Union[str, Callable[[Any], Any]]] = None, **kwargs):
-        self._on_advance = self._do_nothing
+    def __init__(self, refresh: bool, postfix_str: Optional[Union[str, Callable[[Any], Any]]] = None, **kwargs):
+        self._on_set_postfix = self._do_nothing
         self._on_refresh = self._do_nothing
         self._tqdm = tqdm(**kwargs)
+        self._refresh = refresh
 
         if isinstance(postfix_str, str):
             self._tqdm.set_postfix_str(postfix_str)
         elif callable(postfix_str):
             self._postfix_str = postfix_str
-            self._on_advance = self._do_set_postfix
+            self._on_set_postfix = self._do_set_postfix
 
         if refresh:
             self._on_refresh = self._do_refresh
@@ -31,16 +32,17 @@ class TqdmProgbar:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._tqdm.__exit__(exc_type, exc_val, exc_tb)
 
-    def __call__(self, retval):
+    def __call__(self, retval: Any) -> None:
         self._tqdm.update()
-        self._on_advance(retval)
+        self._on_set_postfix(retval)
         self._on_refresh()
 
     def _do_nothing(self, *args, **kwargs) -> None:
         pass
-   
+
     def _do_set_postfix(self, retval: Any) -> None:
-        self._tqdm.set_postfix_str(str(self._postfix_str(retval)))
+        postfix_str = str(self._postfix_str(retval))
+        self._tqdm.set_postfix_str(postfix_str, refresh=False)  # If constructed with refresh=True, then, `self._tqdm.refresh()` will be called separately
 
     def _do_refresh(self) -> None:
         self._tqdm.refresh()

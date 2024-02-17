@@ -18,7 +18,7 @@ plugins:
             show_source: false
             show_root_heading: true
             heading_level: 3
-            show_signature_annotations: true
+            # show_signature_annotations: true
             # separate_signature: true
             docstring_section_style: spacy
 
