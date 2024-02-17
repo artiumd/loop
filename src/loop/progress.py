@@ -42,7 +42,7 @@ class TqdmProgbar:
 
     def _do_set_postfix(self, retval: Any) -> None:
         postfix_str = str(self._postfix_str(retval))
-        self._tqdm.set_postfix_str(postfix_str, refresh=False)  # If constructed with refresh=True, then, `self._tqdm.refresh()` will be called separately
+        self._tqdm.set_postfix_str(postfix_str, refresh=False)  # `self._tqdm.refresh()` will be called separately if constructed with `refresh=True`.
 
     def _do_refresh(self) -> None:
         self._tqdm.refresh()
