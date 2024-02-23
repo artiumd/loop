@@ -1,3 +1,5 @@
+from itertools import zip_longest
+
 from src.loop import batched
 
 
@@ -25,6 +27,14 @@ def test_non_divisible():
 
 
 def _test_batched(iterable, n, expected):
-    for actual_batch, expected_batch in zip(batched(iterable, n), expected, strict=True):
-        for actual_item, expected_item in zip(actual_batch, expected_batch, strict=True):
+    fillvalue = object()
+
+    for actual_batch, expected_batch in zip_longest(batched(iterable, n), expected, fillvalue=fillvalue):
+        if actual_batch is fillvalue or expected_batch is fillvalue:
+            raise TypeError()
+
+        for actual_item, expected_item in zip_longest(actual_batch, expected_batch, fillvalue=fillvalue):
+            if actual_item is fillvalue or expected_item is fillvalue:
+                raise TypeError()
+
             assert actual_item == expected_item
