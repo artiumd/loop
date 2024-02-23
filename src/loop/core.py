@@ -1,11 +1,14 @@
 from typing import Iterable, Iterator, TypeVar, Literal, Tuple, Dict, Optional, Union, Callable, Any
-from functools import reduce
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+import os
+from functools import reduce, partial
+from multiprocessing.dummy import Pool as ThreadPool
+
+from pathos.pools import ProcessPool
 
 from .functional import args_last_adapter, args_first_adapter, tuple_unpack_args_last_adapter, tuple_unpack_args_first_adapter, dict_unpack_adapter, filter_adapter, skipped
 from .packing import return_first, return_first_and_second, return_first_and_third, return_first_second_and_third, return_second, return_second_and_third, return_third, return_none
-from .progress import dummy_progress, TqdmProgbar
-from .concurrency import DummyExecutor
+from .progress import DummyProgbar, TqdmProgbar
+from .concurrency import DummyPool
 from .iteration import batched
 
 
@@ -25,12 +28,10 @@ class Loop:
         self._next_call_spec: Tuple[Optional[Literal['*', '**']], bool] = (None, False)
 
         self._retval_packer = return_third
-        self._returning_inputs = False
-        self._returning_outputs = True
 
-        self._progbar = dummy_progress()
+        self._progbar = DummyProgbar()
 
-        self._executor = DummyExecutor()
+        self._pool = DummyPool()
         self._raise = True
         self._chunksize = None
 
@@ -109,6 +110,10 @@ class Loop:
 
         Returns:
             Returns `self` to allow for further method chaining.
+
+        !!! note
+
+            If [`show_progress()`][loop.Loop.show_progress] was enabled with a known `total`, each time an item is skipped, the progress bar's `total` will be reduced by one.
         """
         self._set_map_or_filter(predicate, args, kwargs, filtering=True)
         return self
@@ -164,9 +169,6 @@ class Loop:
         elif enumerations and inputs and outputs:  # 111
             self._retval_packer = return_first_second_and_third
 
-        self._returning_inputs = inputs
-        self._returning_outputs = outputs
-
         return self
 
     def show_progress(self, refresh: bool = False, postfix_str: Optional[Union[str, Callable[[Any], Any]]] = None, total: Optional[Union[int, Callable[[Iterable], int]]] = None, **kwargs) -> 'Loop':
@@ -220,42 +222,45 @@ class Loop:
         self._progbar = TqdmProgbar(refresh, postfix_str, total=total, **kwargs)
         return self
 
-    def concurrently(self, how: Literal['threads', 'processes'], exceptions: Literal['raise', 'return'] = 'raise', chunksize: Optional[int] = None, **kwargs) -> 'Loop':
+    def concurrently(self, how: Literal['threads', 'processes'], exceptions: Literal['raise', 'return'] = 'raise', chunksize: Optional[int] = None, num_workers: Optional[int] = None) -> 'Loop':
         """
         Apply the functions and predicates from all [`map()`][loop.Loop.map] and [`filter()`][loop.Loop.filter] calls concurrently.
 
-        Each `item` in `iterable` gets its own worker.
+        The order of the outputs is preserved. Each `item` in `iterable` gets its own worker.
 
         Example:
             ```python
 
-            from os import getpid
+            import os
+            import time
             from loop import loop_over
 
 
             def show_pid(i):
-                print(f'{i} on process getpid()}')
+                time.sleep(0.1)
+                print(f'{i} on process {os.getpid()}')
 
-                
-            loop_over(range(10)).map(show_pid).concurrently('processes').exhaust()
+
+            loop_over(range(10)).map(show_pid).concurrently('processes', num_workers=5).exhaust()
             ```
             ```console
-            0 is on thread 16960
-            1 is on thread 16960
-            2 is on thread 16960
-            3 is on thread 12248
-            5 is on thread 17404
-            6 is on thread 1152
-            8 is on thread 12248
-            9 is on thread 7588
-            4 is on thread 16960
-            7 is on thread 8940
+            0 on process 17336
+            1 on process 17320
+            2 on process 13960
+            3 on process 5136
+            4 on process 17224
+            5 on process 17336
+            7 on process 13960
+            6 on process 17320
+            8 on process 5136
+            9 on process 17224
             ```
 
         Args:
-            how: If `"threads"`, uses [`ThreadPoolExecutor`](https://docs.python.org/3/library/concurrent.futures.html#threadpoolexecutor). 
+            how: If `"threads"`, uses [`ThreadPool`](https://docs.python.org/3/library/multiprocessing.html#multiprocessing.pool.ThreadPool). 
                 
-                If `"processes"`, uses [`ProcessPoolExecutor`](https://docs.python.org/3/library/concurrent.futures.html#processpoolexecutor).
+                If `"processes"`, uses [`ProcessPool`](https://pathos.readthedocs.io/en/latest/pathos.html#pathos.multiprocessing.ProcessPool) 
+                (from the [pathos](https://pathos.readthedocs.io/en/latest/pathos.html) library).
             exceptions: If `"raise"`, exceptions are not caught and the first exception in one of the calls will be immediately raised.
                 
                 If `"return"`, exceptions are caught and returned instead of their corresponding outputs.
@@ -263,18 +268,25 @@ class Loop:
                 [`submit()`](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.Executor.submit) calls, if the inputs are large this may cause memory issues. 
 
                 Set this to consume (and concurrently process) up to `chunksize` items at a time.
-            kwargs: Will be passed to constructor of [`ThreadPoolExecutor()`](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor) /
-                [`ProcessPoolExecutor()`](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor) as-is.
+            num_workers: Number of workers to be used in the process/thread pool. If `None`, will be set automatically. If 0, disables concurrency entirely.
         """
+        # Explicitly disable concurrency by passing `num_workers=0`
+        if num_workers == 0:
+            return self
+
         if how == 'threads':
-            self._executor = ThreadPoolExecutor(**kwargs)
+            # If `num_workers` not provided, use the default of https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor
+            if num_workers is None:
+                num_workers = min(32, os.cpu_count() + 4)
+
+            self._pool = ThreadPool(processes=num_workers)
         elif how == 'processes':
-            self._executor = ProcessPoolExecutor(**kwargs)
+            self._pool = ProcessPool(processes=num_workers)
         else:
-            raise ValueError(f'`Loop.concurrently()` called with non-supported argumnet {how = }')
-        
+            raise ValueError(f'`Loop.concurrently()` called with non-supported argument {how = }')
+
         if exceptions not in {'raise', 'return'}:
-            raise ValueError(f'`Loop.concurrently()` called with non-supported argumnet {exceptions = }')
+            raise ValueError(f'`Loop.concurrently()` called with non-supported argument {exceptions = }')
 
         self._raise = (exceptions == 'raise')
         self._chunksize = chunksize
@@ -345,24 +357,23 @@ class Loop:
                 pass
             ```
         """
+        i = 0
+
         with self._progbar as progbar:
-            with self._executor as executor:
+            with self._pool as pool:
                 for chunk in batched(self._iterable, self._chunksize):
-                    futures = [executor.submit(self._apply_maps_and_filters, inp) for inp in chunk]
-
-                    for i, future in enumerate(futures):
-                        inp, out = future.result()
-
-                        if isinstance(out, Exception) and self._raise:
+                    for inp, exception, out in pool.imap(partial(_apply_maps_and_filters, self._functions), chunk):
+                        if exception and self._raise:
                             raise out
 
                         if out is skipped:
-                            continue
+                            progbar.skip_one()
+                        else:
+                            retval = self._retval_packer(i, inp, out)
+                            progbar.advance_one(retval)
+                            yield retval
 
-                        retval = self._retval_packer(i, inp, out)
-                        progbar(retval)
-
-                        yield retval
+                        i += 1
 
     def _set_map_or_filter(self, function, args: Tuple[A, ...], kwargs: Dict[str, K], filtering: bool) -> None:
         unpacking, args_first = self._next_call_spec
@@ -388,19 +399,22 @@ class Loop:
 
         self._functions.append(function)
 
-    def _apply_maps_and_filters(self, inp):
-        out = inp
 
-        try:
-            for function in self._functions:
-                out = function(out)
+def _apply_maps_and_filters(functions, inp):
+    out = inp
+    exception = False
 
-                if out is skipped:
-                    break
-        except Exception as e:
-            out = e
+    try:
+        for function in functions:
+            out = function(out)
 
-        return (inp, out)
+            if out is skipped:
+                break
+    except Exception as e:
+        out = e
+        exception = True
+
+    return inp, exception, out
 
 
 def loop_over(iterable: Iterable[T]) -> Loop:

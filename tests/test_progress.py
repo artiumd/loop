@@ -90,6 +90,17 @@ def test_dynamic_postfix():
     assert re.fullmatch(pattern, prints[-1])
 
 
+def test_filtering():
+    n = 100
+    inp = range(n)
+    loop = loop_over(inp).filter(lambda x: x%2 == 0)
+    prints = _capture_tqdm_outputs_without_newlines(loop, total=n)
+
+    # Positive
+    pattern = rf'100%\|(.*)\| {n//2}/{n//2} \[.+<.+, .+\]'
+    assert re.fullmatch(pattern, prints[-1])
+
+
 def _capture_tqdm_outputs_without_newlines(loop: Loop, **kwargs) -> List[str]:
     with io.StringIO() as file:
         loop.show_progress(refresh=True, file=file, **kwargs).exhaust()

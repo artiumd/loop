@@ -1,12 +1,20 @@
-from typing import Iterator, Callable, Any, Optional, Union
-from contextlib import contextmanager
+from typing import Callable, Any, Optional, Union
 
 from tqdm import tqdm
 
 
-@contextmanager
-def dummy_progress() -> Iterator[Callable[[Any], None]]:
-    yield lambda *args, **kwargs: None
+class DummyProgbar:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    def advance_one(self, retval: Any) -> None:
+        pass
+
+    def skip_one(self) -> None:
+        pass
 
 
 class TqdmProgbar:
@@ -32,10 +40,14 @@ class TqdmProgbar:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._tqdm.__exit__(exc_type, exc_val, exc_tb)
 
-    def __call__(self, retval: Any) -> None:
+    def advance_one(self, retval: Any) -> None:
         self._tqdm.update()
         self._on_set_postfix(retval)
         self._on_refresh()
+
+    def skip_one(self) -> None:
+        if self._tqdm.total is not None:
+            self._tqdm.total -= 1
 
     def _do_nothing(self, *args, **kwargs) -> None:
         pass
