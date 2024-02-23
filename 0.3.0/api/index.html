@@ -1,0 +1,1641 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://artiumd.github.io/loop/0.3.0/api/">
+      
+      
+        <link rel="prev" href="../guide/">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.7">
+    
+    
+      
+        <title>API Reference - Loop</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.f2e4d321.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#preface" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../.."> 
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),outdated=__md_get("__outdated",sessionStorage);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Loop" class="md-header__button md-logo" aria-label="Loop" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Loop
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/artiumd/loop" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Loop" class="md-nav__button md-logo" aria-label="Loop" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Loop
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/artiumd/loop" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guide
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#preface" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preface
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factory-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factory Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Factory Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#loop.loop_over" class="md-nav__link">
+    <span class="md-ellipsis">
+      loop_over
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.loop_range" class="md-nav__link">
+    <span class="md-ellipsis">
+      loop_range
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modifier-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modifier Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modifier Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.map" class="md-nav__link">
+    <span class="md-ellipsis">
+      map
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      filter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.next_call_with" class="md-nav__link">
+    <span class="md-ellipsis">
+      next_call_with
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.returning" class="md-nav__link">
+    <span class="md-ellipsis">
+      returning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.show_progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      show_progress
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.concurrently" class="md-nav__link">
+    <span class="md-ellipsis">
+      concurrently
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consumer-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Consumer Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Consumer Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.__iter__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __iter__
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.exhaust" class="md-nav__link">
+    <span class="md-ellipsis">
+      exhaust
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.reduce" class="md-nav__link">
+    <span class="md-ellipsis">
+      reduce
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#preface" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preface
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factory-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Factory Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Factory Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#loop.loop_over" class="md-nav__link">
+    <span class="md-ellipsis">
+      loop_over
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.loop_range" class="md-nav__link">
+    <span class="md-ellipsis">
+      loop_range
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modifier-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Modifier Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modifier Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.map" class="md-nav__link">
+    <span class="md-ellipsis">
+      map
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      filter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.next_call_with" class="md-nav__link">
+    <span class="md-ellipsis">
+      next_call_with
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.returning" class="md-nav__link">
+    <span class="md-ellipsis">
+      returning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.show_progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      show_progress
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.concurrently" class="md-nav__link">
+    <span class="md-ellipsis">
+      concurrently
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consumer-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Consumer Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Consumer Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.__iter__" class="md-nav__link">
+    <span class="md-ellipsis">
+      __iter__
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.exhaust" class="md-nav__link">
+    <span class="md-ellipsis">
+      exhaust
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loop.Loop.reduce" class="md-nav__link">
+    <span class="md-ellipsis">
+      reduce
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>API Reference</h1>
+
+<h2 id="preface">Preface</h2>
+<p>The usage of the library usually follows the following pattern:</p>
+<ol>
+<li>Create a loop using one of the factory functions (which return a <code>Loop</code> instance).</li>
+<li>Apply one or more modifier methods (in a method chaining style) to customize the looping behaviour.</li>
+<li>Finally, consume the loop, for example using a <code>for</code> statement. </li>
+</ol>
+<h2 id="factory-functions">Factory Functions</h2>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="loop.loop_over" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">loop</span><span class="o">.</span><span class="n">loop_over</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Construct a new <code>Loop</code> that iterates over <code>iterable</code>.</p>
+<p>Customize the looping behaviour by chaining different <code>Loop</code> methods and finally use a <code>for</code> statement like you normally would.</p>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">loop</span> <span class="kn">import</span> <span class="n">loop_over</span>
+
+
+<span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">loop_over</span><span class="p">([</span><span class="s1">&#39;Hello&#39;</span><span class="p">,</span> <span class="s1">&#39;World&#39;</span><span class="p">,</span> <span class="s1">&#39;!&#39;</span><span class="p">]):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="go">Hello</span>
+<span class="go">World</span>
+<span class="go">!</span>
+</code></pre></div>
+</details>
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>iterable</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>The object to be looped over.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="typing.Iterable">Iterable</span>[<span title="loop.core.T">T</span>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><span title="loop.core.Loop">Loop</span></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>Returns a new <code>Loop</code> instance wrapping <code>iterable</code>.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="loop.loop_range" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">loop</span><span class="o">.</span><span class="n">loop_range</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Shorthand for <code>loop_over(range(*args))</code>.</p>
+
+  </div>
+
+</div><h2 id="modifier-methods">Modifier Methods</h2>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="loop.Loop.map" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">loop</span><span class="o">.</span><span class="n">Loop</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Apply <code>function</code> to each <code>item</code> in <code>iterable</code> by calling <code>function(item, *args, **kwargs)</code>.</p>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">loop</span> <span class="kn">import</span> <span class="n">loop_over</span>
+
+
+<span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">loop_over</span><span class="p">([</span><span class="s1">&#39;Hello&#39;</span><span class="p">,</span> <span class="s1">&#39;World&#39;</span><span class="p">,</span> <span class="s1">&#39;!&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">upper</span><span class="p">()):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="go">HELLO</span>
+<span class="go">WORLD</span>
+<span class="go">!</span>
+</code></pre></div>
+</details>
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>function</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Function to be applied on each item in the loop.</p>
+            </div>
+            <p>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>args</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Passed as <code>*args</code> (after the loop variable) to each call to <code>function</code>.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="loop.core.A">A</span></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>kwargs</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Passed as <code>**kwargs</code> to each call to <code>function</code>.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="loop.core.K">K</span></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>{}</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><span title="loop.core.Loop">Loop</span></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>Returns <code>self</code> to allow for further method chaining.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, applying <code>map(function, *args, **kwargs)</code> is not the same as applying <code>map(functools.partial(function, *args, **kwargs))</code> because <code>functools.partial</code> passes <code>*args</code> BEFORE the loop item.</p>
+</div>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="loop.Loop.filter" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">loop</span><span class="o">.</span><span class="n">Loop</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">predicate</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Skip <code>item</code>s in <code>iterable</code> for which <code>predicate(item, *args, **kwargs)</code> is false.</p>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">loop</span> <span class="kn">import</span> <span class="n">loop_over</span>
+
+
+<span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="n">loop_over</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">%</span><span class="mi">2</span><span class="o">==</span><span class="mi">0</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="go">0</span>
+<span class="go">2</span>
+<span class="go">4</span>
+<span class="go">6</span>
+<span class="go">8</span>
+</code></pre></div>
+</details>
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>predicate</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Function that accepts the loop variable and returns a boolean.</p>
+            </div>
+            <p>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>args</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Passed as <code>*args</code> (after the loop variable) to each call to <code>predicate</code>.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="loop.core.A">A</span></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>kwargs</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Passed as <code>**kwargs</code> to each call to <code>predicate</code>.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="loop.core.K">K</span></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>{}</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><span title="loop.core.Loop">Loop</span></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>Returns <code>self</code> to allow for further method chaining.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <a class="autorefs autorefs-internal" href="#loop.Loop.show_progress"><code>show_progress()</code></a> was enabled with a known <code>total</code>, each time an item is skipped, the progress bar's <code>total</code> will be reduced by one.</p>
+</div>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="loop.Loop.next_call_with" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">loop</span><span class="o">.</span><span class="n">Loop</span><span class="o">.</span><span class="n">next_call_with</span><span class="p">(</span><span class="n">unpacking</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">args_first</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Change how arguments are passed to <code>function</code> in <a class="autorefs autorefs-internal" href="#loop.Loop.map"><code>map()</code></a> (or <code>predicate</code> in <a class="autorefs autorefs-internal" href="#loop.Loop.filter"><code>filter()</code></a>).</p>
+<p>Arguments are explained using the following table:</p>
+<table>
+<thead>
+<tr>
+<th><code>unpacking</code></th>
+<th><code>args_first</code></th>
+<th>Resulting Call</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>None</code></td>
+<td><code>False</code></td>
+<td><code>func(x, *args, **kwargs)</code> (this is the default behaviour)</td>
+</tr>
+<tr>
+<td><code>None</code></td>
+<td><code>True</code></td>
+<td><code>func(*args, x, **kwargs)</code></td>
+</tr>
+<tr>
+<td><code>"*"</code></td>
+<td><code>False</code></td>
+<td><code>func(*x, *args, **kwargs)</code></td>
+</tr>
+<tr>
+<td><code>"*"</code></td>
+<td><code>True</code></td>
+<td><code>func(*args, *x, **kwargs)</code></td>
+</tr>
+<tr>
+<td><code>"**"</code></td>
+<td><code>Any</code></td>
+<td><code>func(*args, **x, **kwargs)</code></td>
+</tr>
+</tbody>
+</table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><span title="loop.core.Loop">Loop</span></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>Returns <code>self</code> to allow for further method chaining.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Each invocation of <code>next_call_with()</code> applies only to the next <code>map()</code>/<code>filter()</code>, subsequent calls will resume to default behaviour.</p>
+</div>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="loop.Loop.returning" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">loop</span><span class="o">.</span><span class="n">Loop</span><span class="o">.</span><span class="n">returning</span><span class="p">(</span><span class="n">enumerations</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Set the return type of this loop.</p>
+<p>By default, only outputs are returned.</p>
+<p>The order of returned items is <code>(enumerations, inputs, outputs)</code>.</p>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">loop</span> <span class="kn">import</span> <span class="n">loop_over</span>
+
+
+<span class="k">for</span> <span class="n">retval</span> <span class="ow">in</span> <span class="n">loop_over</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="nb">pow</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">returning</span><span class="p">(</span><span class="n">enumerations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">retval</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="gp gp-VirtualEnv">(0, 0, 0)</span> 
+<span class="gp gp-VirtualEnv">(1, 2, 4)</span> 
+<span class="gp gp-VirtualEnv">(2, 4, 16)</span>
+<span class="gp gp-VirtualEnv">(3, 6, 36)</span>
+<span class="gp gp-VirtualEnv">(4, 8, 64)</span>
+</code></pre></div>
+</details>
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>enumerations</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>If True, return value will include the (zero-based) index of the current iteration.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code>bool</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>inputs</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>If True, return value will include the raw value from the underlying iterable, before any <a class="autorefs autorefs-internal" href="#loop.Loop.map"><code>map()</code></a> has been applied.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code>bool</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>outputs</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>If True, return value will include the output of the last <a class="autorefs autorefs-internal" href="#loop.Loop.map"><code>map()</code></a> operation.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code>bool</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>True</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><span title="loop.core.Loop">Loop</span></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>Returns <code>self</code> to allow for further method chaining.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="loop.Loop.show_progress" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">loop</span><span class="o">.</span><span class="n">Loop</span><span class="o">.</span><span class="n">show_progress</span><span class="p">(</span><span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">postfix_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Display a <a href="https://tqdm.github.io/docs/tqdm"><code>tqdm.tqdm</code></a> progress bar as the iterable is being consumed.</p>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <p><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">loop</span> <span class="kn">import</span> <span class="n">loop_over</span>
+
+
+<span class="n">seconds</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">5.8</span><span class="p">]</span>
+<span class="n">loop_over</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">)</span><span class="o">.</span><span class="n">show_progress</span><span class="p">(</span><span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Sleeping&#39;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span><span class="o">.</span><span class="n">exhaust</span><span class="p">()</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="go">Sleeping: 100%|█████████████████████████████████████████| 4/4 [00:12&lt;00:00,  3.08s/it]</span>
+</code></pre></div></p>
+</details>
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>refresh</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>If True, <a href="https://tqdm.github.io/docs/tqdm/#refresh"><code>tqdm.refresh()</code></a> will be called after every iteration, this makes the progress bar more responsive but reduces the
+iteration rate.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code>bool</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>postfix_str</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Used for calling <a href="https://tqdm.github.io/docs/tqdm/#set_postfix_str"><code>tqdm.set_postfix_str()</code></a>. If a string, it will be set only once in the beginning. 
+If a callable, it accepts the loop variable, returns a postfix (which can be of any type) on top of which <code>str()</code> is applied.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[str, <span title="typing.Callable">Callable</span>[[<span title="typing.Any">Any</span>], <span title="typing.Any">Any</span>]]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>total</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Same as in <a href="https://tqdm.github.io/docs/tqdm/#__init__"><code>tqdm.__init__()</code></a>, but can also be a callable that accepts an iterable and returns an int, which is used as the new <code>total</code>.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[int, <span title="typing.Callable">Callable</span>[[<span title="typing.Iterable">Iterable</span>], int]]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>kwargs</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Forwarded to <a href="https://tqdm.github.io/docs/tqdm/#__init__"><code>tqdm.__init__()</code></a> as-is.</p>
+            </div>
+            <p>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>{}</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><span title="loop.core.Loop">Loop</span></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>Returns <code>self</code> to allow for further method chaining.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When <code>postfix_str</code> is callable, it always takes a single parameter, the value of which depends on what was set in <a class="autorefs autorefs-internal" href="#loop.Loop.returning"><code>returning()</code></a>.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="p">(</span><span class="n">loop_over</span><span class="p">(</span><span class="o">...</span><span class="p">)</span><span class="o">.</span>
+ <span class="n">returning</span><span class="p">(</span><span class="n">enumerations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span>
+ <span class="n">show_progress</span><span class="p">(</span><span class="n">postfix_str</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;idx=</span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">,inp=</span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">,out=</span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">))</span>
+</code></pre></div>
+<p>Here <code>x</code> is a tuple containing the current index, input and output.</p>
+</div>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="loop.Loop.concurrently" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">loop</span><span class="o">.</span><span class="n">Loop</span><span class="o">.</span><span class="n">concurrently</span><span class="p">(</span><span class="n">how</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">=</span><span class="s1">&#39;raise&#39;</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Apply the functions and predicates from all <a class="autorefs autorefs-internal" href="#loop.Loop.map"><code>map()</code></a> and <a class="autorefs autorefs-internal" href="#loop.Loop.filter"><code>filter()</code></a> calls concurrently.</p>
+<p>The order of the outputs is preserved. Each <code>item</code> in <code>iterable</code> gets its own worker.</p>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <p><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">loop</span> <span class="kn">import</span> <span class="n">loop_over</span>
+
+
+<span class="k">def</span> <span class="nf">show_pid</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1"> on process </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+<span class="n">loop_over</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">show_pid</span><span class="p">)</span><span class="o">.</span><span class="n">concurrently</span><span class="p">(</span><span class="s1">&#39;processes&#39;</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">exhaust</span><span class="p">()</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="go">0 on process 17336</span>
+<span class="go">1 on process 17320</span>
+<span class="go">2 on process 13960</span>
+<span class="go">3 on process 5136</span>
+<span class="go">4 on process 17224</span>
+<span class="go">5 on process 17336</span>
+<span class="go">7 on process 13960</span>
+<span class="go">6 on process 17320</span>
+<span class="go">8 on process 5136</span>
+<span class="go">9 on process 17224</span>
+</code></pre></div></p>
+</details>
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>how</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>If <code>"threads"</code>, uses <a href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.pool.ThreadPool"><code>ThreadPool</code></a>. </p>
+<p>If <code>"processes"</code>, uses <a href="https://pathos.readthedocs.io/en/latest/pathos.html#pathos.multiprocessing.ProcessPool"><code>ProcessPool</code></a> 
+(from the <a href="https://pathos.readthedocs.io/en/latest/pathos.html">pathos</a> library).</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="typing.Literal">Literal</span>[&#39;threads&#39;, &#39;processes&#39;]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>exceptions</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>If <code>"raise"</code>, exceptions are not caught and the first exception in one of the calls will be immediately raised.</p>
+<p>If <code>"return"</code>, exceptions are caught and returned instead of their corresponding outputs.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="typing.Literal">Literal</span>[&#39;raise&#39;, &#39;return&#39;]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;raise&#39;</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>chunksize</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Passed to <code>imap()</code> method of <a href="https://pathos.readthedocs.io/en/latest/pathos.html#pathos.multiprocessing.ProcessPool"><code>ProcessPool</code></a> / 
+<a href="https://docs.python.org/3/library/multiprocessing.html#multiprocessing.pool.ThreadPool"><code>ThreadPool</code></a>. </p>
+<p>This is used to consume (and concurrently process) up to <code>chunksize</code> items at a time, which can solve memory issues in "heavy" iterables.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="typing.Optional">Optional</span>[int]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>num_workers</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Number of workers to be used in the process/thread pool. If <code>None</code>, will be set automatically. If 0, disables concurrency entirely.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="typing.Optional">Optional</span>[int]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div><h2 id="consumer-methods">Consumer Methods</h2>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="loop.Loop.__iter__" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">loop</span><span class="o">.</span><span class="n">Loop</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>The most common way to consume a loop is to simply iterate over it.</p>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">loop</span> <span class="kn">import</span> <span class="n">loop_over</span>
+
+
+<span class="n">items</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">loop_over</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+    <span class="c1"># Do something with item</span>
+    <span class="k">pass</span>
+</code></pre></div>
+</details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="loop.Loop.exhaust" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">loop</span><span class="o">.</span><span class="n">Loop</span><span class="o">.</span><span class="n">exhaust</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Consume the loop without returning any results.</p>
+<p>This maybe useful when you map functions only for their side effects.</p>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">loop</span> <span class="kn">import</span> <span class="n">loop_over</span>
+
+
+<span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">loop_over</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">)</span><span class="o">.</span><span class="n">exhaust</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="go">[0, 1, 2, 3, 4]</span>
+</code></pre></div></p>
+</details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="loop.Loop.reduce" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">loop</span><span class="o">.</span><span class="n">Loop</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="n">_missing</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Consume the loop and reduce it to a single value using <code>function</code>.</p>
+<p><code>function</code> and (the optional) <code>initializer</code> have the same 
+meaning as in <a href="https://docs.python.org/3/library/functools.html#functools.reduce"><code>functools.reduce()</code></a>.</p>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">loop</span> <span class="kn">import</span> <span class="n">loop_over</span>
+
+
+<span class="n">vec</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">25.3</span><span class="p">,</span> <span class="mf">4.9</span><span class="p">]</span>
+<span class="n">sum_squares</span> <span class="o">=</span> <span class="n">loop_over</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">+</span><span class="n">y</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The L2 norm of </span><span class="si">{</span><span class="n">vec</span><span class="si">}</span><span class="s1"> equals </span><span class="si">{</span><span class="n">sum_squares</span><span class="o">**</span><span class="mf">0.5</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="go">The L2 norm of [-1.1, 25.3, 4.9] equals 25.79</span>
+</code></pre></div></p>
+</details>
+  </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.caa56a14.min.js"></script>
+      
+    
+  </body>
+</html>
