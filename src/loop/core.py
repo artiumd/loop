@@ -9,7 +9,6 @@ from .functional import args_last_adapter, args_first_adapter, tuple_unpack_args
 from .packing import return_first, return_first_and_second, return_first_and_third, return_first_second_and_third, return_second, return_second_and_third, return_third, return_none
 from .progress import DummyProgbar, TqdmProgbar
 from .concurrency import DummyPool
-from .iteration import batched
 
 
 T = TypeVar('T')
@@ -33,7 +32,7 @@ class Loop:
 
         self._pool = DummyPool()
         self._raise = True
-        self._chunksize = None
+        self._imap_kwargs = {}
 
     def next_call_with(self, unpacking: Optional[Literal['*', '**']] = None, args_first: bool = False) -> 'Loop':
         """
@@ -264,10 +263,10 @@ class Loop:
             exceptions: If `"raise"`, exceptions are not caught and the first exception in one of the calls will be immediately raised.
                 
                 If `"return"`, exceptions are caught and returned instead of their corresponding outputs.
-            chunksize: By default, when the loop starts, `iterable` will be immediately consumed by 
-                [`submit()`](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.Executor.submit) calls, if the inputs are large this may cause memory issues. 
+            chunksize: Passed to `imap()` method of [`ProcessPool`](https://pathos.readthedocs.io/en/latest/pathos.html#pathos.multiprocessing.ProcessPool) / 
+                [`ThreadPool`](https://docs.python.org/3/library/multiprocessing.html#multiprocessing.pool.ThreadPool). 
 
-                Set this to consume (and concurrently process) up to `chunksize` items at a time.
+                This is used to consume (and concurrently process) up to `chunksize` items at a time, which can solve memory issues in "heavy" iterables.
             num_workers: Number of workers to be used in the process/thread pool. If `None`, will be set automatically. If 0, disables concurrency entirely.
         """
         # Explicitly disable concurrency by passing `num_workers=0`
@@ -289,7 +288,10 @@ class Loop:
             raise ValueError(f'`Loop.concurrently()` called with non-supported argument {exceptions = }')
 
         self._raise = (exceptions == 'raise')
-        self._chunksize = chunksize
+
+        if chunksize is not None:
+            self._imap_kwargs['chunksize'] = chunksize
+        
         return self
 
     def exhaust(self) -> None:
@@ -361,19 +363,18 @@ class Loop:
 
         with self._progbar as progbar:
             with self._pool as pool:
-                for chunk in batched(self._iterable, self._chunksize):
-                    for inp, exception, out in pool.imap(partial(_apply_maps_and_filters, self._functions), chunk):
-                        if exception and self._raise:
-                            raise out
+                for inp, exception, out in pool.imap(partial(_apply_maps_and_filters, self._functions), self._iterable, **self._imap_kwargs):
+                    if exception and self._raise:
+                        raise out
 
-                        if out is skipped:
-                            progbar.skip_one()
-                        else:
-                            retval = self._retval_packer(i, inp, out)
-                            progbar.advance_one(retval)
-                            yield retval
+                    if out is skipped:
+                        progbar.skip_one()
+                    else:
+                        retval = self._retval_packer(i, inp, out)
+                        progbar.advance_one(retval)
+                        yield retval
 
-                        i += 1
+                    i += 1
 
     def _set_map_or_filter(self, function, args: Tuple[A, ...], kwargs: Dict[str, K], filtering: bool) -> None:
         unpacking, args_first = self._next_call_spec
@@ -432,3 +433,10 @@ def loop_over(iterable: Iterable[T]) -> Loop:
         Returns a new `Loop` instance wrapping `iterable`.
     """
     return Loop(iterable)
+
+
+def loop_range(*args) -> Loop:
+    """
+    Shorthand for `loop_over(range(*args))`.
+    """
+    return Loop(range(*args))

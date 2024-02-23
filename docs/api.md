@@ -10,6 +10,8 @@ The usage of the library usually follows the following pattern:
 
 ::: loop.loop_over
 
+::: loop.loop_range
+
 ## Modifier Methods
 
 ::: loop.Loop.map

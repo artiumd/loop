@@ -25,7 +25,7 @@ def test_disabled_threads():
         time.sleep(0.01)
         assert get_ident() == main_id
 
-    loop_over(range(100)).map(assert_in_main_thread).concurrently('processes', num_workers=0).exhaust()
+    loop_over(range(100)).map(assert_in_main_thread).concurrently('threads', num_workers=0).exhaust()
 
 
 def test_same_process_id():

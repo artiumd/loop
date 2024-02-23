@@ -12,5 +12,5 @@ class DummyPool:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-    def imap(self, fn: Callable[[T], R], iterable: Iterable[T]) -> Iterable[R]:
+    def imap(self, fn: Callable[[T], R], iterable: Iterable[T], chunksize=None) -> Iterable[R]:
         return map(fn, iterable)

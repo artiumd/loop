@@ -1,4 +1,4 @@
-from src.loop import loop_over
+from src.loop import loop_over, loop_range
 
 from .utilities import assert_loops_as_expected, assert_loop_raises
 
@@ -26,3 +26,8 @@ def test_exhaust():
     result = loop_over(inp).map(out.append).exhaust()
     assert result is None
     assert out == inp
+
+
+def test_range():
+    for args in [(10,), (1, 19), (4, 99), (5, 10, 2), (4, -10, -2), (-9, -99), (-9, -999, -3)]:
+        assert list(loop_over(range(*args))) == list(loop_range(*args))
