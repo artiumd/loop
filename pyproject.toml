@@ -9,7 +9,8 @@ name = "loop-python"
 description = "Replace common looping boilerplate with pretty method chaining."
 authors = [{name = "Artium Dashuta", email = "artium89@gmail.com"}]
 readme = "README.md"
-dependencies = ["tqdm"
+dependencies = ["tqdm",
+                "pathos"
 ]
 requires-python = ">=3.8"
 license = {text = "MIT License"}

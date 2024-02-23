@@ -22,6 +22,8 @@ The usage of the library usually follows the following pattern:
 
 ::: loop.Loop.show_progress
 
+::: loop.Loop.concurrently
+
 ## Consumer Methods
 
 ::: loop.Loop.__iter__

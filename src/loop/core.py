@@ -1,9 +1,12 @@
 from typing import Iterable, Iterator, TypeVar, Literal, Tuple, Dict, Optional, Union, Callable, Any
 from functools import reduce
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 
 from .functional import args_last_adapter, args_first_adapter, tuple_unpack_args_last_adapter, tuple_unpack_args_first_adapter, dict_unpack_adapter, filter_adapter, skipped
 from .packing import return_first, return_first_and_second, return_first_and_third, return_first_second_and_third, return_second, return_second_and_third, return_third, return_none
 from .progress import dummy_progress, TqdmProgbar
+from .concurrency import DummyExecutor
+from .iteration import batched
 
 
 T = TypeVar('T')
@@ -26,6 +29,10 @@ class Loop:
         self._returning_outputs = True
 
         self._progbar = dummy_progress()
+
+        self._executor = DummyExecutor()
+        self._raise = True
+        self._chunksize = None
 
     def next_call_with(self, unpacking: Optional[Literal['*', '**']] = None, args_first: bool = False) -> 'Loop':
         """
@@ -75,7 +82,7 @@ class Loop:
 
     def filter(self, predicate, *args: A, **kwargs: K) -> 'Loop':
         """
-        Skip items for which `predicate(item, *args, **kwargs)` is false.
+        Skip `item`s in `iterable` for which `predicate(item, *args, **kwargs)` is false.
 
         Example:
             ``` python
@@ -105,7 +112,7 @@ class Loop:
         """
         self._set_map_or_filter(predicate, args, kwargs, filtering=True)
         return self
-    
+
     def returning(self, enumerations: bool = False, inputs: bool = False, outputs: bool = True) -> 'Loop':
         """
         Set the return type of this loop.
@@ -166,6 +173,21 @@ class Loop:
         """
         Display a [`tqdm.tqdm`](https://tqdm.github.io/docs/tqdm) progress bar as the iterable is being consumed.
 
+        Example:
+            ```python
+
+            import time
+
+            from loop import loop_over
+
+
+            seconds = [1.1, 4.5, 0.9, 5.8]
+            loop_over(seconds).map(time.sleep).show_progress(desc='Sleeping', total=len).exhaust()
+            ```
+            ```console
+            Sleeping: 100%|█████████████████████████████████████████| 4/4 [00:12<00:00,  3.08s/it]
+            ```
+
         Args:
             refresh: If True, [`tqdm.refresh()`](https://tqdm.github.io/docs/tqdm/#refresh) will be called after every iteration, this makes the progress bar more responsive but reduces the
                 iteration rate.
@@ -196,6 +218,66 @@ class Loop:
             total = total(self._iterable)
 
         self._progbar = TqdmProgbar(refresh, postfix_str, total=total, **kwargs)
+        return self
+
+    def concurrently(self, how: Literal['threads', 'processes'], exceptions: Literal['raise', 'return'] = 'raise', chunksize: Optional[int] = None, **kwargs) -> 'Loop':
+        """
+        Apply the functions and predicates from all [`map()`][loop.Loop.map] and [`filter()`][loop.Loop.filter] calls concurrently.
+
+        Each `item` in `iterable` gets its own worker.
+
+        Example:
+            ```python
+
+            from os import getpid
+            from loop import loop_over
+
+
+            def show_pid(i):
+                print(f'{i} on process getpid()}')
+
+                
+            loop_over(range(10)).map(show_pid).concurrently('processes').exhaust()
+            ```
+            ```console
+            0 is on thread 16960
+            1 is on thread 16960
+            2 is on thread 16960
+            3 is on thread 12248
+            5 is on thread 17404
+            6 is on thread 1152
+            8 is on thread 12248
+            9 is on thread 7588
+            4 is on thread 16960
+            7 is on thread 8940
+            ```
+
+        Args:
+            how: If `"threads"`, uses [`ThreadPoolExecutor`](https://docs.python.org/3/library/concurrent.futures.html#threadpoolexecutor). 
+                
+                If `"processes"`, uses [`ProcessPoolExecutor`](https://docs.python.org/3/library/concurrent.futures.html#processpoolexecutor).
+            exceptions: If `"raise"`, exceptions are not caught and the first exception in one of the calls will be immediately raised.
+                
+                If `"return"`, exceptions are caught and returned instead of their corresponding outputs.
+            chunksize: By default, when the loop starts, `iterable` will be immediately consumed by 
+                [`submit()`](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.Executor.submit) calls, if the inputs are large this may cause memory issues. 
+
+                Set this to consume (and concurrently process) up to `chunksize` items at a time.
+            kwargs: Will be passed to constructor of [`ThreadPoolExecutor()`](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor) /
+                [`ProcessPoolExecutor()`](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor) as-is.
+        """
+        if how == 'threads':
+            self._executor = ThreadPoolExecutor(**kwargs)
+        elif how == 'processes':
+            self._executor = ProcessPoolExecutor(**kwargs)
+        else:
+            raise ValueError(f'`Loop.concurrently()` called with non-supported argumnet {how = }')
+        
+        if exceptions not in {'raise', 'return'}:
+            raise ValueError(f'`Loop.concurrently()` called with non-supported argumnet {exceptions = }')
+
+        self._raise = (exceptions == 'raise')
+        self._chunksize = chunksize
         return self
 
     def exhaust(self) -> None:
@@ -264,19 +346,23 @@ class Loop:
             ```
         """
         with self._progbar as progbar:
-            for i, inp in enumerate(self._iterable):
-                out = inp
+            with self._executor as executor:
+                for chunk in batched(self._iterable, self._chunksize):
+                    futures = [executor.submit(self._apply_maps_and_filters, inp) for inp in chunk]
 
-                for function in self._functions:
-                    out = function(out)
+                    for i, future in enumerate(futures):
+                        inp, out = future.result()
 
-                    if out is skipped:
-                        break
-                else:
-                    retval = self._retval_packer(i, inp, out)
-                    progbar(retval)
+                        if isinstance(out, Exception) and self._raise:
+                            raise out
 
-                    yield retval
+                        if out is skipped:
+                            continue
+
+                        retval = self._retval_packer(i, inp, out)
+                        progbar(retval)
+
+                        yield retval
 
     def _set_map_or_filter(self, function, args: Tuple[A, ...], kwargs: Dict[str, K], filtering: bool) -> None:
         unpacking, args_first = self._next_call_spec
@@ -301,6 +387,20 @@ class Loop:
             function = filter_adapter(function)
 
         self._functions.append(function)
+
+    def _apply_maps_and_filters(self, inp):
+        out = inp
+
+        try:
+            for function in self._functions:
+                out = function(out)
+
+                if out is skipped:
+                    break
+        except Exception as e:
+            out = e
+
+        return (inp, out)
 
 
 def loop_over(iterable: Iterable[T]) -> Loop:
