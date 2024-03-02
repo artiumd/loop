@@ -24,7 +24,7 @@ classifiers = [
 
 
 [project.optional-dependencies]
-tests = ["pytest==7.4.4", "mypy-1.8.0"]
+tests = ["pytest==7.4.4", "mypy==1.8.0"]
 docs = ["mkdocs==1.5.3", "mkdocs-material==9.5.7", "mike==2.0.0", "mkdocstrings[python]==0.24.0"]
 
 
