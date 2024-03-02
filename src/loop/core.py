@@ -1,9 +1,14 @@
 from typing import Iterable, Iterator, TypeVar, Literal, Tuple, Optional, Union, Callable, Any, Generic, overload, Type, List, TypedDict
 import os
+import sys
 from functools import reduce, partial
 from multiprocessing.dummy import Pool as ThreadPool
 
-from typing_extensions import NotRequired
+if sys.version_info < (3, 11):
+    from typing_extensions import NotRequired
+else:
+    from typing import NotRequired
+
 from pathos.pools import ProcessPool  # type: ignore
 
 from .functional import args_last_adapter, args_first_adapter, tuple_unpack_args_last_adapter, tuple_unpack_args_first_adapter, dict_unpack_adapter, filter_adapter, skipped
@@ -38,7 +43,7 @@ class Loop(Generic[S, T, R]):
         
         class ImapKwargs(TypedDict):
             chunksize: NotRequired[int]
-        
+
         self._imap_kwargs: ImapKwargs = {}
 
     def next_call_with(self, unpacking: Optional[Literal['*', '**']] = None, args_first: bool = False) -> 'Loop[S, T, R]':

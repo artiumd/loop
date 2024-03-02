@@ -11,7 +11,8 @@ authors = [{name = "Artium Dashuta", email = "artium89@gmail.com"}]
 readme = "README.md"
 dependencies = ["tqdm",
                 "types-tqdm", 
-                "pathos"
+                "pathos", 
+                "typing-extensions; python_version < '3.11'"
 ]
 requires-python = ">=3.8"
 license = {text = "MIT License"}
