@@ -28,6 +28,6 @@ def test_exhaust():
     assert out == inp
 
 
-def test_range():
+def test_loop_range():
     for args in [(10,), (1, 19), (4, 99), (5, 10, 2), (4, -10, -2), (-9, -99), (-9, -999, -3)]:
         assert list(loop_over(range(*args))) == list(loop_range(*args))

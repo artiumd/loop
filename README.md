@@ -13,7 +13,7 @@ pip install loop-python
 
 ## Documentation 
 
-Visit the [documentation site](https://artiumd.github.io/loop).
+Visit the [documentation site](https://artiumd.github.io/loop/latest/).
 
 ## Example
 

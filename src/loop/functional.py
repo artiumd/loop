@@ -1,43 +1,12 @@
-from typing import Protocol, Type, Callable, TypeVar, Union
+from typing import Type, Callable, Union, TypeVar
 from functools import wraps
-
-
-T = TypeVar('T')
-A = TypeVar('A')
-K = TypeVar('K')
-R = TypeVar('R')
 
 
 class skipped:
     pass
 
 
-class ArgArgsKwargsFunction(Protocol):
-    def __call__(self, arg: T, *args: A, **kwargs: K) -> R:
-        ...
-
-
-class ArgsArgKwargsFunction(Protocol):
-    def __call__(self, *args: A, arg: T, **kwargs: K) -> R:
-        ...
-
-
-class ArgsKwargsFunction(Protocol):
-    def __call__(self, *args: A, **kwargs: K) -> R:
-        ...
-
-
-class ArgsKwargsFunction(Protocol):
-    def __call__(self, *args: A, **kwargs: K) -> R:
-        ...
-
-
-class OneArgFunction(Protocol):
-    def __call__(self, arg: T) -> R:
-        ...
-
-
-def args_last_adapter(adaptee: ArgArgsKwargsFunction, *args: A, **kwargs: K) -> OneArgFunction:
+def args_last_adapter(adaptee, *args, **kwargs):
     @wraps(adaptee)
     def adapted(inp):
         return adaptee(inp, *args, **kwargs)
@@ -45,7 +14,7 @@ def args_last_adapter(adaptee: ArgArgsKwargsFunction, *args: A, **kwargs: K) -> 
     return adapted
 
 
-def args_first_adapter(adaptee: ArgsArgKwargsFunction, *args: A, **kwargs: K) -> OneArgFunction:
+def args_first_adapter(adaptee, *args, **kwargs):
     @wraps(adaptee)
     def adapted(inp):
         return adaptee(*args, inp, **kwargs)
@@ -53,7 +22,7 @@ def args_first_adapter(adaptee: ArgsArgKwargsFunction, *args: A, **kwargs: K) ->
     return adapted
 
 
-def tuple_unpack_args_last_adapter(adaptee: ArgsKwargsFunction, *args: A, **kwargs: K) -> OneArgFunction:
+def tuple_unpack_args_last_adapter(adaptee, *args, **kwargs):
     @wraps(adaptee)
     def adapted(inp):
         return adaptee(*inp, *args, **kwargs)
@@ -61,7 +30,7 @@ def tuple_unpack_args_last_adapter(adaptee: ArgsKwargsFunction, *args: A, **kwar
     return adapted
 
 
-def tuple_unpack_args_first_adapter(adaptee: ArgsKwargsFunction, *args: A, **kwargs: K) -> OneArgFunction:
+def tuple_unpack_args_first_adapter(adaptee, *args, **kwargs):
     @wraps(adaptee)
     def adapted(inp):
         return adaptee(*args, *inp, **kwargs)
@@ -69,7 +38,7 @@ def tuple_unpack_args_first_adapter(adaptee: ArgsKwargsFunction, *args: A, **kwa
     return adapted
 
 
-def dict_unpack_adapter(adaptee: ArgsKwargsFunction, *args: A, **kwargs: K) -> OneArgFunction:
+def dict_unpack_adapter(adaptee, *args, **kwargs):
     @wraps(adaptee)
     def adapted(inp):
         return adaptee(*args, **inp, **kwargs)
@@ -78,10 +47,9 @@ def dict_unpack_adapter(adaptee: ArgsKwargsFunction, *args: A, **kwargs: K) -> O
 
 
 T = TypeVar('T')
-R = TypeVar('R')
 
 
-def filter_adapter(adaptee: Callable[[T], R]) -> Callable[[T], Union[R, Type[skipped]]]:
+def filter_adapter(adaptee: Callable[[T], bool]) -> Callable[[T], Union[T, Type[skipped]]]:
     @wraps(adaptee)
     def adapted(inp):
         out = adaptee(inp)
