@@ -1,7 +1,7 @@
 from typing import List, Dict, Tuple
 from itertools import product
 
-from src.loop import loop_range, loop_over, Loop
+from src.loop import loop_range, loop_over, Loop, TRUE, FALSE
 
 
 def test_simple() -> None:
@@ -26,10 +26,13 @@ def test_filter() -> None:
     for x in loop_range(10).filter(lambda x: x > 5): pass
 
 
-def test_returning() -> None:
-    def _make_loop() -> Loop[str, float, float]:
-        return loop_over(['hello', 'world']).map(lambda word: sum(char == 'l' for char in word) / len(word))
+def test_returning_after_map() -> None:
+    def _calc_l_rate(word: str) -> float:
+        return sum(char == 'l' for char in word) / len(word)
     
+    def _make_loop() -> Loop[str, float, FALSE, FALSE, TRUE]:
+        return loop_over(['hello', 'world']).map(_calc_l_rate)
+
     def test_none() -> None:
         x: None
         for x in _make_loop().returning(outputs=False): pass
@@ -40,7 +43,6 @@ def test_returning() -> None:
         for x in _make_loop().returning(False, inputs=False, outputs=False): pass
         for x in _make_loop().returning(enumerations=False, outputs=False): pass
         for x in _make_loop().returning(enumerations=False, inputs=False, outputs=False): pass
-
 
     def test_outputs_only() -> None:
         x: float
@@ -120,6 +122,103 @@ def test_returning() -> None:
         for x in _make_loop().returning(True, inputs=True, outputs=False): pass
         for x in _make_loop().returning(enumerations=True, inputs=True, outputs=False): pass
 
+
+def test_returning_before_map() -> None:
+    def _calc_l_rate(word: str) -> float:
+        return sum(char == 'l' for char in word) / len(word)
+    
+    def _make_loop() -> Loop[str, str, FALSE, FALSE, TRUE]:
+        return loop_over(['hello', 'world'])
+
+    def test_none() -> None:
+        x: None
+        for x in _make_loop().returning(outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(inputs=False, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, False, False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, False, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, inputs=False, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=False, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=False, inputs=False, outputs=False).map(_calc_l_rate): pass
+
+    def test_outputs_only() -> None:
+        x: float
+        for x in _make_loop().returning().map(_calc_l_rate): pass
+        for x in _make_loop().returning(outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(inputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(inputs=False, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, False, True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, False, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, inputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, inputs=False, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=False, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=False, inputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=False, inputs=False, outputs=True).map(_calc_l_rate): pass
+
+    def test_inputs_outputs() -> None:
+        x: Tuple[str, float]
+        for x in _make_loop().returning(inputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(inputs=True, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, True, True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, True, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, inputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, inputs=True, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=False, inputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=False, inputs=True, outputs=True).map(_calc_l_rate): pass
+
+    def test_inputs_only() -> None:
+        x: str
+        for x in _make_loop().returning(inputs=True, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, True, False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, True, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(False, inputs=True, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=False, inputs=True, outputs=False).map(_calc_l_rate): pass
+
+    def test_enums_outputs() -> None:
+        x: Tuple[int, float]
+        for x in _make_loop().returning(True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, False, True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, False, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, inputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, inputs=False, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=True, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=True, inputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=True, inputs=False, outputs=True).map(_calc_l_rate): pass
+
+    def test_enums_only() -> None:
+        x: int
+        for x in _make_loop().returning(True, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, False, False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, False, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, inputs=False, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=True, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=True, inputs=False, outputs=False).map(_calc_l_rate): pass
+
+    def test_enums_inputs_outputs() -> None:
+        x: Tuple[int, str, float]
+        for x in _make_loop().returning(True, True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, True, True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, True, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, inputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, inputs=True, outputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=True, inputs=True).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=True, inputs=True, outputs=True).map(_calc_l_rate): pass
+
+    def test_enums_inputs() -> None:
+        x: Tuple[int, str]
+        for x in _make_loop().returning(True, True, False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, True, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(True, inputs=True, outputs=False).map(_calc_l_rate): pass
+        for x in _make_loop().returning(enumerations=True, inputs=True, outputs=False).map(_calc_l_rate): pass
+    
 
 def _print_raw_options():
     options = ['missing', 'pos_false', 'pos_true', 'named_false', 'named_true']

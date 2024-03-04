@@ -8,5 +8,5 @@ except PackageNotFoundError:
     pass  # package is not installed
 
 
-from .core import Loop, loop_over, loop_range
+from .core import Loop, loop_over, loop_range, TRUE, FALSE
 from .iteration import batched

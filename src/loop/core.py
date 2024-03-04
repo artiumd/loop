@@ -1,4 +1,4 @@
-from typing import Iterable, Iterator, TypeVar, Literal, Tuple, Optional, Union, Callable, Any, Generic, overload, Type, List, TypedDict
+from typing import Iterable, Iterator, TypeVar, Literal, Tuple, Optional, Union, Callable, Any, Generic, overload, Type, List, TypedDict, cast
 import os
 import sys
 from functools import reduce, partial
@@ -19,22 +19,38 @@ from .concurrency import DummyPool
 
 S = TypeVar('S')
 T = TypeVar('T')
-R = TypeVar('R')
 L = TypeVar('L')
-E = TypeVar('E', bound=int)
+
+
+class BOOL:
+    pass
+
+
+class TRUE(BOOL):
+    pass
+
+
+class FALSE(BOOL):
+    pass
+
+
+R_ENUM = TypeVar('R_ENUM', bound=BOOL)
+R_INPS = TypeVar('R_INPS', bound=BOOL)
+R_OUTS = TypeVar('R_OUTS', bound=BOOL)
 
 
 class _missing:
     pass
 
 
-class Loop(Generic[S, T, R]):
+class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
     def __init__(self, iterable: Iterable[S]):
         self._iterable = iterable
+        
         self._functions: List[Callable[[T], Union[L, bool]]] = []
         self._next_call_spec: Tuple[Optional[Literal['*', '**']], bool] = (None, False)
 
-        self._retval_packer: Callable[[E, S, T], Any] = return_third
+        self._retval_packer: Callable[[int, S, T], Any] = return_third
 
         self._progbar: Union[DummyProgbar, TqdmProgbar] = DummyProgbar()
 
@@ -46,7 +62,7 @@ class Loop(Generic[S, T, R]):
 
         self._imap_kwargs: ImapKwargs = {}
 
-    def next_call_with(self, unpacking: Optional[Literal['*', '**']] = None, args_first: bool = False) -> 'Loop[S, T, R]':
+    def next_call_with(self, unpacking: Optional[Literal['*', '**']] = None, args_first: bool = False):
         """
         Change how arguments are passed to `function` in [`map()`][loop.Loop.map] (or `predicate` in [`filter()`][loop.Loop.filter]).
 
@@ -69,40 +85,8 @@ class Loop(Generic[S, T, R]):
         """
         self._next_call_spec = (unpacking, args_first)
         return self
-
-    # @overload
-    # def map(self: 'Loop[S, T, Tuple[()]]', function: Callable[[T], L], *args, **kwargs) -> 'Loop[S, L, Tuple[()]]':
-    #     ...
-
-    @overload
-    def map(self: 'Loop[S, T, T]', function: Callable[[T], L], *args, **kwargs) -> 'Loop[S, L, L]':
-        ...
-
-    @overload
-    def map(self: 'Loop[S, T, S]', function: Callable[[T], L], *args, **kwargs) -> 'Loop[S, L, S]':
-        ...
-
-    # @overload
-    # def map(self: 'Loop[S, T, Tuple[S, T]]', function: Callable[[T], L], *args, **kwargs) -> 'Loop[S, L, Tuple[S, L]]':
-    #     ...
-
-    @overload
-    def map(self: 'Loop[S, T, E]', function: Callable[[T], L], *args, **kwargs) -> 'Loop[S, L, E]':
-        ...
-
-    # @overload
-    # def map(self: 'Loop[S, T, Tuple[E, T]]', function: Callable[[T], L], *args, **kwargs) -> 'Loop[S, L, Tuple[E, L]]':
-    #     ...
-
-    # @overload
-    # def map(self: 'Loop[S, T, Tuple[E, S]]', function: Callable[[T], L], *args, **kwargs) -> 'Loop[S, L, Tuple[E, S]]':
-    #     ...
-
-    # @overload
-    # def map(self: 'Loop[S, T, Tuple[E, S, T]]', function: Callable[[T], L], *args, **kwargs) -> 'Loop[S, L, Tuple[E, S, L]]':
-    #     ...
-
-    def map(self, function, *args, **kwargs):
+    
+    def map(self, function: Callable[[T], L], *args, **kwargs) -> 'Loop[S, L, R_ENUM, R_INPS, R_OUTS]':
         """
         Apply `function` to each `item` in `iterable` by calling `function(item, *args, **kwargs)`.
 
@@ -122,9 +106,10 @@ class Loop(Generic[S, T, R]):
             By default, applying ` map(function, *args, **kwargs)` is not the same as applying `map(functools.partial(function, *args, **kwargs))` because `functools.partial` passes `*args` BEFORE the loop item.
         """
         self._set_map_or_filter(function, args, kwargs, filtering=False)
-        return self
+        out = cast(Loop[S, L, R_ENUM, R_INPS, R_OUTS], self)
+        return out
 
-    def filter(self, predicate: Callable[[T], bool], *args, **kwargs) -> 'Loop[S, T, R]':
+    def filter(self, predicate: Callable[[T], bool], *args, **kwargs) -> 'Loop[S, T, R_ENUM, R_INPS, R_OUTS]':
         """
         Skip `item`s in `iterable` for which `predicate(item, *args, **kwargs)` is false.
 
@@ -163,125 +148,125 @@ class Loop(Generic[S, T, R]):
     
     # Overloads for yielding `None`
     @overload
-    def returning(self, *, outputs: Literal[False]) -> 'Loop[S, T, None]':
+    def returning(self, *, outputs: Literal[False]) -> 'Loop[S, T, FALSE, FALSE, FALSE]':
         ...
 
     @overload
-    def returning(self, *, inputs: Literal[False], outputs: Literal[False]) -> 'Loop[S, T, None]':
+    def returning(self, *, inputs: Literal[False], outputs: Literal[False]) -> 'Loop[S, T, FALSE, FALSE, FALSE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[False], *, outputs: Literal[False]) -> 'Loop[S, T, None]':
+    def returning(self, enumerations: Literal[False], *, outputs: Literal[False]) -> 'Loop[S, T, FALSE, FALSE, FALSE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[False], inputs: Literal[False], outputs: Literal[False]) -> 'Loop[S, T, None]':
+    def returning(self, enumerations: Literal[False], inputs: Literal[False], outputs: Literal[False]) -> 'Loop[S, T, FALSE, FALSE, FALSE]':
         ...
 
     # Overloads for yielding `T`
     
     @overload
-    def returning(self) -> 'Loop[S, T, T]':
+    def returning(self) -> 'Loop[S, T, FALSE, FALSE, TRUE]':
         ...
 
     @overload
-    def returning(self, *, outputs: Literal[True]) -> 'Loop[S, T, T]':
+    def returning(self, *, outputs: Literal[True]) -> 'Loop[S, T, FALSE, FALSE, TRUE]':
         ...
 
     @overload
-    def returning(self, *, inputs: Literal[False]) -> 'Loop[S, T, T]':
+    def returning(self, *, inputs: Literal[False]) -> 'Loop[S, T, FALSE, FALSE, TRUE]':
         ...
 
     @overload
-    def returning(self, *, inputs: Literal[False], outputs: Literal[True]) -> 'Loop[S, T, T]':
+    def returning(self, *, inputs: Literal[False], outputs: Literal[True]) -> 'Loop[S, T, FALSE, FALSE, TRUE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[False]) -> 'Loop[S, T, T]':
+    def returning(self, enumerations: Literal[False]) -> 'Loop[S, T, FALSE, FALSE, TRUE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[False], *, outputs: Literal[True]) -> 'Loop[S, T, T]':
+    def returning(self, enumerations: Literal[False], *, outputs: Literal[True]) -> 'Loop[S, T, FALSE, FALSE, TRUE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[False], inputs: Literal[False]) -> 'Loop[S, T, T]':
+    def returning(self, enumerations: Literal[False], inputs: Literal[False]) -> 'Loop[S, T, FALSE, FALSE, TRUE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[False], inputs: Literal[False], outputs: Literal[True]) -> 'Loop[S, T, T]':
+    def returning(self, enumerations: Literal[False], inputs: Literal[False], outputs: Literal[True]) -> 'Loop[S, T, FALSE, FALSE, TRUE]':
         ...
 
     # Overloads for yielding `Tuple[S, T]`
     
     @overload
-    def returning(self, *, inputs: Literal[True]) -> 'Loop[S, T, Tuple[S, T]]':
+    def returning(self, *, inputs: Literal[True]) -> 'Loop[S, T, FALSE, TRUE, TRUE]':
         ...
 
     @overload
-    def returning(self, *, inputs: Literal[True], outputs: Literal[True]) -> 'Loop[S, T, Tuple[S, T]]':
+    def returning(self, *, inputs: Literal[True], outputs: Literal[True]) -> 'Loop[S, T, FALSE, TRUE, TRUE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[False], inputs: Literal[True]) -> 'Loop[S, T, Tuple[S, T]]':
+    def returning(self, enumerations: Literal[False], inputs: Literal[True]) -> 'Loop[S, T, FALSE, TRUE, TRUE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[False], inputs: Literal[True], outputs: Literal[True]) -> 'Loop[S, T, Tuple[S, T]]':
+    def returning(self, enumerations: Literal[False], inputs: Literal[True], outputs: Literal[True]) -> 'Loop[S, T, FALSE, TRUE, TRUE]':
         ...
 
     # Overloads for yielding `S`
     
     @overload
-    def returning(self, *, inputs: Literal[True], outputs: Literal[False]) -> 'Loop[S, T, S]':
+    def returning(self, *, inputs: Literal[True], outputs: Literal[False]) -> 'Loop[S, T, FALSE, TRUE, FALSE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[False], inputs: Literal[True], outputs: Literal[False]) -> 'Loop[S, T, S]':
+    def returning(self, enumerations: Literal[False], inputs: Literal[True], outputs: Literal[False]) -> 'Loop[S, T, FALSE, TRUE, FALSE]':
         ...
 
     # Overloads for yielding `Tuple[int, T]`
 
     @overload
-    def returning(self, enumerations: Literal[True]) -> 'Loop[S, T, Tuple[int, T]]':
+    def returning(self, enumerations: Literal[True]) -> 'Loop[S, T, TRUE, FALSE, TRUE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[True], *, outputs: Literal[True]) -> 'Loop[S, T, Tuple[int, T]]':
+    def returning(self, enumerations: Literal[True], *, outputs: Literal[True]) -> 'Loop[S, T, TRUE, FALSE, TRUE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[True], inputs: Literal[False]) -> 'Loop[S, T, Tuple[int, T]]':
+    def returning(self, enumerations: Literal[True], inputs: Literal[False]) -> 'Loop[S, T, TRUE, FALSE, TRUE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[True], inputs: Literal[False], outputs: Literal[True]) -> 'Loop[S, T, Tuple[int, T]]':
+    def returning(self, enumerations: Literal[True], inputs: Literal[False], outputs: Literal[True]) -> 'Loop[S, T, TRUE, FALSE, TRUE]':
         ...
 
     # Overloads for yielding `int`
 
     @overload
-    def returning(self, enumerations: Literal[True], *, outputs: Literal[False]) -> 'Loop[S, T, int]':
+    def returning(self, enumerations: Literal[True], *, outputs: Literal[False]) -> 'Loop[S, T, TRUE, FALSE, FALSE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[True], inputs: Literal[False], outputs: Literal[False]) -> 'Loop[S, T, int]':
+    def returning(self, enumerations: Literal[True], inputs: Literal[False], outputs: Literal[False]) -> 'Loop[S, T, TRUE, FALSE, FALSE]':
         ...
 
     # Overloads for yielding `Tuple[int, S, T]`
 
     @overload
-    def returning(self, enumerations: Literal[True], inputs: Literal[True]) -> 'Loop[S, T, Tuple[int, S, T]]':
+    def returning(self, enumerations: Literal[True], inputs: Literal[True]) -> 'Loop[S, T, TRUE, TRUE, TRUE]':
         ...
 
     @overload
-    def returning(self, enumerations: Literal[True], inputs: Literal[True], outputs: Literal[True]) -> 'Loop[S, T, Tuple[int, S, T]]':
+    def returning(self, enumerations: Literal[True], inputs: Literal[True], outputs: Literal[True]) -> 'Loop[S, T, TRUE, TRUE, TRUE]':
         ...
 
     # Overloads for yielding `Tuple[int, S]`
 
     @overload
-    def returning(self, enumerations: Literal[True], inputs: Literal[True], outputs: Literal[False]) -> 'Loop[S, T, Tuple[int, S]]':
+    def returning(self, enumerations: Literal[True], inputs: Literal[True], outputs: Literal[False]) -> 'Loop[S, T, TRUE, TRUE, FALSE]':
         ...
 
     def returning(self, enumerations: bool = False, inputs: bool = False, outputs: bool = True):
@@ -337,7 +322,7 @@ class Loop(Generic[S, T, R]):
 
         return self
 
-    def show_progress(self, refresh: bool = False, postfix_str: Optional[Union[str, Callable[[Any], Any]]] = None, total: Optional[Union[int, Callable[[Iterable], int]]] = None, **kwargs) -> 'Loop[S, T, R]':
+    def show_progress(self, refresh: bool = False, postfix_str: Optional[Union[str, Callable[[Any], Any]]] = None, total: Optional[Union[int, Callable[[Iterable], int]]] = None, **kwargs):
         """
         Display a [`tqdm.tqdm`](https://tqdm.github.io/docs/tqdm) progress bar as the iterable is being consumed.
 
@@ -388,7 +373,7 @@ class Loop(Generic[S, T, R]):
         self._progbar = TqdmProgbar(refresh, postfix_str, total=total, **kwargs)
         return self
 
-    def concurrently(self, how: Literal['threads', 'processes'], exceptions: Literal['raise', 'return'] = 'raise', chunksize: Optional[int] = None, num_workers: Optional[int] = None) -> 'Loop[S, T, R]':
+    def concurrently(self, how: Literal['threads', 'processes'], exceptions: Literal['raise', 'return'] = 'raise', chunksize: Optional[int] = None, num_workers: Optional[int] = None):
         """
         Apply the functions and predicates from all [`map()`][loop.Loop.map] and [`filter()`][loop.Loop.filter] calls concurrently.
 
@@ -481,10 +466,43 @@ class Loop(Generic[S, T, R]):
             [0, 1, 2, 3, 4]
             ```
         """
-        for _ in self:
+        iterator = iter(self)
+
+        try:
+            while True:
+                next(iterator)
+        except StopIteration:
             pass
 
-    def reduce(self, function: Callable[[R, R], R], initializer: Union[Type[_missing], R] = _missing) -> R:
+    @overload
+    def reduce(self: 'Loop[S, T, FALSE, FALSE, TRUE]', function: Callable[[T, T], T], initializer: Union[Type[_missing], T] = _missing) -> T:
+        ...
+
+    @overload
+    def reduce(self: 'Loop[S, T, FALSE, TRUE, FALSE]', function: Callable[[S, S], S], initializer: Union[Type[_missing], S] = _missing) -> S:
+        ...
+
+    @overload
+    def reduce(self: 'Loop[S, T, FALSE, TRUE, TRUE]', function: Callable[[Tuple[S, T], Tuple[S, T]], Tuple[S, T]], initializer: Union[Type[_missing], Tuple[S, T]] = _missing) -> Tuple[S, T]:
+        ...
+
+    @overload
+    def reduce(self: 'Loop[S, T, TRUE, FALSE, FALSE]', function: Callable[[int, int], int], initializer: Union[Type[_missing], int] = _missing) -> int:
+        ...
+
+    @overload
+    def reduce(self: 'Loop[S, T, TRUE, FALSE, TRUE]', function: Callable[[Tuple[int, T], Tuple[int, T]], Tuple[int, T]], initializer: Union[Type[_missing], Tuple[int, T]] = _missing) -> Tuple[int, T]:
+        ...
+
+    @overload
+    def reduce(self: 'Loop[S, T, TRUE, TRUE, FALSE]', function: Callable[[Tuple[int, S], Tuple[int, S]], Tuple[int, S]], initializer: Union[Type[_missing], Tuple[int, S]] = _missing) -> Tuple[int, S]:
+        ...
+
+    @overload
+    def reduce(self: 'Loop[S, T, TRUE, TRUE, TRUE]', function: Callable[[Tuple[int, S, T], Tuple[int, S, T]], Tuple[int, S, T]], initializer: Union[Type[_missing], Tuple[int, S, T]] = _missing) -> Tuple[int, S, T]:
+        ...
+
+    def reduce(self, function, initializer=_missing):
         """
         Consume the loop and reduce it to a single value using `function`.
 
@@ -506,8 +524,40 @@ class Loop(Generic[S, T, R]):
         """
         args = () if initializer is _missing else (initializer,)
         return reduce(function, self, *args)
+    
+    @overload
+    def __iter__(self: 'Loop[S, T, FALSE, FALSE, FALSE]') -> Iterator[None]:
+        ...
 
-    def __iter__(self) -> Iterator[R]:
+    @overload
+    def __iter__(self: 'Loop[S, T, FALSE, FALSE, TRUE]') -> Iterator[T]:
+        ...
+
+    @overload
+    def __iter__(self: 'Loop[S, T, FALSE, TRUE, FALSE]') -> Iterator[S]:
+        ...
+
+    @overload
+    def __iter__(self: 'Loop[S, T, FALSE, TRUE, TRUE]') -> Iterator[Tuple[S, T]]:
+        ...
+
+    @overload
+    def __iter__(self: 'Loop[S, T, TRUE, FALSE, FALSE]') -> Iterator[int]:
+        ...
+
+    @overload
+    def __iter__(self: 'Loop[S, T, TRUE, FALSE, TRUE]') -> Iterator[Tuple[int, T]]:
+        ...
+
+    @overload
+    def __iter__(self: 'Loop[S, T, TRUE, TRUE, FALSE]') -> Iterator[Tuple[int, S]]:
+        ...
+
+    @overload
+    def __iter__(self: 'Loop[S, T, TRUE, TRUE, TRUE]') -> Iterator[Tuple[int, S, T]]:
+        ...
+
+    def __iter__(self):
         """
         The most common way to consume a loop is to simply iterate over it.
 
@@ -582,7 +632,7 @@ def _apply_maps_and_filters(functions, inp):
     return inp, exception, out
 
 
-def loop_over(iterable: Iterable[S]) -> Loop[S, S, S]:
+def loop_over(iterable: Iterable[S]) -> Loop[S, S, FALSE, FALSE, TRUE]:
     """Construct a new `Loop` that iterates over `iterable`.
 
     Customize the looping behaviour by chaining different `Loop` methods and finally use a `for` statement like you normally would.
@@ -599,7 +649,7 @@ def loop_over(iterable: Iterable[S]) -> Loop[S, S, S]:
     return Loop(iterable)
 
 
-def loop_range(*args) -> Loop[int, int, int]:
+def loop_range(*args) -> Loop[int, int, FALSE, FALSE, TRUE]:
     """
     Shorthand for `loop_over(range(*args))`.
     """
