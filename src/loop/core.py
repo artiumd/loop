@@ -1,4 +1,4 @@
-from typing import Iterable, Iterator, TypeVar, Literal, Tuple, Optional, Union, Callable, Any, Generic, overload, Type, List, TypedDict, cast
+from typing import Iterable, Iterator, TypeVar, Literal, Tuple, Optional, Union, Callable, Any, Generic, overload, Type, List, cast
 import os
 import sys
 from functools import reduce, partial
@@ -46,7 +46,7 @@ class _missing:
 class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
     def __init__(self, iterable: Iterable[S]):
         self._iterable = iterable
-        
+
         self._functions: List[Callable[[T], Union[L, bool]]] = []
         self._next_call_spec: Tuple[Optional[Literal['*', '**']], bool] = (None, False)
 
@@ -56,11 +56,7 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
 
         self._pool = DummyPool()
         self._raise = True
-        
-        class ImapKwargs(TypedDict):
-            chunksize: NotRequired[int]
-
-        self._imap_kwargs: ImapKwargs = {}
+        self._chunksize_tuple: Union[Tuple[int], Tuple[()]] = ()
 
     def next_call_with(self, unpacking: Optional[Literal['*', '**']] = None, args_first: bool = False):
         """
@@ -85,7 +81,7 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
         """
         self._next_call_spec = (unpacking, args_first)
         return self
-    
+
     def map(self, function: Callable[[T], L], *args, **kwargs) -> 'Loop[S, L, R_ENUM, R_INPS, R_OUTS]':
         """
         Apply `function` to each `item` in `iterable` by calling `function(item, *args, **kwargs)`.
@@ -130,7 +126,7 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
             6
             8
             ```
-        
+
         Args:
             predicate: Function that accepts the loop variable and returns a boolean.
             args: Passed as `*args` (after the loop variable) to each call to `predicate`.
@@ -145,7 +141,7 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
         """
         self._set_map_or_filter(predicate, args, kwargs, filtering=True)
         return self
-    
+
     # Overloads for yielding `None`
     @overload
     def returning(self, *, outputs: Literal[False]) -> 'Loop[S, T, FALSE, FALSE, FALSE]':
@@ -164,7 +160,7 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
         ...
 
     # Overloads for yielding `T`
-    
+
     @overload
     def returning(self) -> 'Loop[S, T, FALSE, FALSE, TRUE]':
         ...
@@ -198,7 +194,7 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
         ...
 
     # Overloads for yielding `Tuple[S, T]`
-    
+
     @overload
     def returning(self, *, inputs: Literal[True]) -> 'Loop[S, T, FALSE, TRUE, TRUE]':
         ...
@@ -216,7 +212,7 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
         ...
 
     # Overloads for yielding `S`
-    
+
     @overload
     def returning(self, *, inputs: Literal[True], outputs: Literal[False]) -> 'Loop[S, T, FALSE, TRUE, FALSE]':
         ...
@@ -288,8 +284,8 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
             ```
 
             ``` console
-            (0, 0, 0) 
-            (1, 2, 4) 
+            (0, 0, 0)
+            (1, 2, 4)
             (2, 4, 16)
             (3, 6, 36)
             (4, 8, 64)
@@ -344,7 +340,7 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
         Args:
             refresh: If True, [`tqdm.refresh()`](https://tqdm.github.io/docs/tqdm/#refresh) will be called after every iteration, this makes the progress bar more responsive but reduces the
                 iteration rate.
-            postfix_str: Used for calling [`tqdm.set_postfix_str()`](https://tqdm.github.io/docs/tqdm/#set_postfix_str). If a string, it will be set only once in the beginning. 
+            postfix_str: Used for calling [`tqdm.set_postfix_str()`](https://tqdm.github.io/docs/tqdm/#set_postfix_str). If a string, it will be set only once in the beginning.
                 If a callable, it accepts the loop variable, returns a postfix (which can be of any type) on top of which `str()` is applied.
             total: Same as in [`tqdm.__init__()`](https://tqdm.github.io/docs/tqdm/#__init__), but can also be a callable that accepts an iterable and returns an int, which is used as the new `total`.
             kwargs: Forwarded to [`tqdm.__init__()`](https://tqdm.github.io/docs/tqdm/#__init__) as-is.
@@ -357,14 +353,14 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
             When `postfix_str` is callable, it always takes a single parameter, the value of which depends on what was set in [`returning()`][loop.Loop.returning].
 
             For example:
-            
+
             ```python
 
             (loop_over(...).
              returning(enumerations=True, inputs=True, outputs=True).
              show_progress(postfix_str=lambda x: f'idx={x[0]},inp={x[1]},out={x[2]}'))
             ```
-            
+
             Here `x` is a tuple containing the current index, input and output.
         """
         if callable(total):
@@ -408,15 +404,15 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
             ```
 
         Args:
-            how: If `"threads"`, uses [`ThreadPool`](https://docs.python.org/3/library/multiprocessing.html#multiprocessing.pool.ThreadPool). 
-                
-                If `"processes"`, uses [`ProcessPool`](https://pathos.readthedocs.io/en/latest/pathos.html#pathos.multiprocessing.ProcessPool) 
+            how: If `"threads"`, uses [`ThreadPool`](https://docs.python.org/3/library/multiprocessing.html#multiprocessing.pool.ThreadPool).
+
+                If `"processes"`, uses [`ProcessPool`](https://pathos.readthedocs.io/en/latest/pathos.html#pathos.multiprocessing.ProcessPool)
                 (from the [pathos](https://pathos.readthedocs.io/en/latest/pathos.html) library).
             exceptions: If `"raise"`, exceptions are not caught and the first exception in one of the calls will be immediately raised.
-                
+
                 If `"return"`, exceptions are caught and returned instead of their corresponding outputs.
-            chunksize: Passed to `imap()` method of [`ProcessPool`](https://pathos.readthedocs.io/en/latest/pathos.html#pathos.multiprocessing.ProcessPool) / 
-                [`ThreadPool`](https://docs.python.org/3/library/multiprocessing.html#multiprocessing.pool.ThreadPool). 
+            chunksize: Passed to `imap()` method of [`ProcessPool`](https://pathos.readthedocs.io/en/latest/pathos.html#pathos.multiprocessing.ProcessPool) /
+                [`ThreadPool`](https://docs.python.org/3/library/multiprocessing.html#multiprocessing.pool.ThreadPool).
 
                 This is used to consume (and concurrently process) up to `chunksize` items at a time, which can solve memory issues in "heavy" iterables.
             num_workers: Number of workers to be used in the process/thread pool. If `None`, will be set automatically. If 0, disables concurrency entirely.
@@ -443,8 +439,8 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
         self._raise = (exceptions == 'raise')
 
         if chunksize is not None:
-            self._imap_kwargs['chunksize'] = chunksize
-        
+            self._chunksize_tuple = (chunksize, )
+
         return self
 
     def exhaust(self) -> None:
@@ -506,7 +502,7 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
         """
         Consume the loop and reduce it to a single value using `function`.
 
-        `function` and (the optional) `initializer` have the same 
+        `function` and (the optional) `initializer` have the same
         meaning as in [`functools.reduce()`](https://docs.python.org/3/library/functools.html#functools.reduce).
 
         Example:
@@ -524,7 +520,7 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
         """
         args = () if initializer is _missing else (initializer,)
         return reduce(function, self, *args)
-    
+
     @overload
     def __iter__(self: 'Loop[S, T, FALSE, FALSE, FALSE]') -> Iterator[None]:
         ...
@@ -577,7 +573,7 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
 
         with self._progbar as progbar:
             with self._pool as pool:
-                for inp, exception, out in pool.imap(partial(_apply_maps_and_filters, self._functions), self._iterable, **self._imap_kwargs):
+                for inp, exception, out in pool.imap(partial(_apply_maps_and_filters, self._functions), self._iterable, *self._chunksize_tuple):
                     if exception and self._raise:
                         raise out
 
