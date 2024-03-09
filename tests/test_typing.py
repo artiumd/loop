@@ -1,5 +1,5 @@
 from typing import List, Dict, Tuple
-from itertools import product
+from operator import add
 
 from src.loop import loop_range, loop_over, Loop, TRUE, FALSE
 
@@ -29,7 +29,7 @@ def test_filter() -> None:
 def test_returning_after_map() -> None:
     def _calc_l_rate(word: str) -> float:
         return sum(char == 'l' for char in word) / len(word)
-    
+
     def _make_loop() -> Loop[str, float, FALSE, FALSE, TRUE]:
         return loop_over(['hello', 'world']).map(_calc_l_rate)
 
@@ -126,7 +126,7 @@ def test_returning_after_map() -> None:
 def test_returning_before_map() -> None:
     def _calc_l_rate(word: str) -> float:
         return sum(char == 'l' for char in word) / len(word)
-    
+
     def _make_loop() -> Loop[str, str, FALSE, FALSE, TRUE]:
         return loop_over(['hello', 'world'])
 
@@ -218,14 +218,15 @@ def test_returning_before_map() -> None:
         for x in _make_loop().returning(True, True, outputs=False).map(_calc_l_rate): pass
         for x in _make_loop().returning(True, inputs=True, outputs=False).map(_calc_l_rate): pass
         for x in _make_loop().returning(enumerations=True, inputs=True, outputs=False).map(_calc_l_rate): pass
-    
 
-def _print_raw_options():
-    options = ['missing', 'pos_false', 'pos_true', 'named_false', 'named_true']
-    for x in product(options, options, options):
-        # pos cant come after missing or named
-        if (x[1].startswith('pos') and (x[0] == 'missing' or x[0].startswith('named'))) or \
-           (x[2].startswith('pos') and ('missing' in x[:2] or x[0].startswith('named') or x[1].startswith('named'))):
-            continue
 
-        print(x)
+def test_reduce() -> None:
+    inp = [1.1, 2.2, 3.3, 4.4, 5.5]
+    a: float = loop_over(inp).reduce(add)
+    b: str = loop_over(inp).map(str).reduce(add)
+    c: float = loop_over(inp).map(str).returning(inputs=True, outputs=False).reduce(add)
+    d: Tuple[float, str] = loop_over(inp).map(str).returning(inputs=True).reduce(add)
+    e: int = loop_over(inp).map(str).returning(enumerations=True, outputs=False).reduce(add)
+    f: Tuple[int, str] = loop_over(inp).map(str).returning(enumerations=True).reduce(add)
+    g: Tuple[int, float] = loop_over(inp).map(str).returning(enumerations=True, inputs=True, outputs=False).reduce(add)
+    h: Tuple[int, float, str] = loop_over(inp).map(str).returning(enumerations=True, inputs=True).reduce(add)
