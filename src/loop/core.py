@@ -13,7 +13,7 @@ from pathos.pools import ProcessPool  # type: ignore
 
 from .functional import args_last_adapter, args_first_adapter, tuple_unpack_args_last_adapter, tuple_unpack_args_first_adapter, dict_unpack_adapter, filter_adapter, skipped
 from .packing import return_first, return_first_and_second, return_first_and_third, return_first_second_and_third, return_second, return_second_and_third, return_third, return_none
-from .progress import DummyProgbar, TqdmProgbar
+from .progress import Progbar, DummyProgbar, TqdmProgbar
 from .concurrency import DummyPool
 
 
@@ -52,7 +52,7 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
 
         self._retval_packer: Callable[[int, S, T], Any] = return_third
 
-        self._progbar: Union[DummyProgbar, TqdmProgbar] = DummyProgbar()
+        self._progbar: Progbar = DummyProgbar()
 
         self._pool = DummyPool()
         self._raise = True

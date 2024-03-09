@@ -1,6 +1,20 @@
-from typing import Callable, Any, Optional, Union
+from typing import Callable, Any, Optional, Union, Protocol
 
 from tqdm import tqdm
+
+
+class Progbar(Protocol):
+    def __enter__(self):
+        ...
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        ...
+
+    def advance_one(self, retval: Any) -> None:
+        ...
+
+    def skip_one(self) -> None:
+        ...
 
 
 class DummyProgbar:
