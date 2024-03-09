@@ -1,13 +1,7 @@
 from typing import Iterable, Iterator, TypeVar, Literal, Tuple, Optional, Union, Callable, Any, Generic, overload, Type, List, cast
 import os
-import sys
 from functools import reduce, partial
 from multiprocessing.dummy import Pool as ThreadPool
-
-if sys.version_info < (3, 11):
-    from typing_extensions import NotRequired
-else:
-    from typing import NotRequired
 
 from pathos.pools import ProcessPool  # type: ignore
 
