@@ -72,9 +72,6 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
         |    `"*"`    |    `True`    | `func(*args, *x, **kwargs)`                                    |
         |    `"**"`   |    `Any`     | `func(*args, **x, **kwargs)`                                   |
 
-        Returns:
-            Returns `self` to allow for further method chaining.
-
         !!! note
 
             Each invocation of `next_call_with()` applies only to the next `map()`/`filter()`, subsequent calls will resume to default behaviour.
@@ -94,12 +91,9 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
             args: Passed as `*args` (after the loop variable) to each call to `function`.
             kwargs: Passed as `**kwargs` to each call to `function`.
 
-        Returns:
-            Returns `self` to allow for further method chaining.
-
         !!! note
 
-            By default, applying ` map(function, *args, **kwargs)` is not the same as applying `map(functools.partial(function, *args, **kwargs))` because `functools.partial` passes `*args` BEFORE the loop item.
+            By default, applying ` map(function, *args, **kwargs)` is not the same as applying `map(functools.partial(function, *args, **kwargs))` because `functools.partial` would pass `*args` BEFORE the loop item.
         """
         self._set_map_or_filter(function, args, kwargs, filtering=False)
         out = cast(Loop[S, L, R_ENUM, R_INPS, R_OUTS], self)
@@ -131,9 +125,6 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
             predicate: Function that accepts the loop variable and returns a boolean.
             args: Passed as `*args` (after the loop variable) to each call to `predicate`.
             kwargs: Passed as `**kwargs` to each call to `predicate`.
-
-        Returns:
-            Returns `self` to allow for further method chaining.
 
         !!! note
 
@@ -295,9 +286,6 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
             enumerations: If True, return value will include the (zero-based) index of the current iteration.
             inputs: If True, return value will include the raw value from the underlying iterable, before any [`map()`][loop.Loop.map] has been applied.
             outputs: If True, return value will include the output of the last [`map()`][loop.Loop.map] operation.
-
-        Returns:
-            Returns `self` to allow for further method chaining.
         """
         if not enumerations and not inputs and not outputs:  # 000
             self._retval_packer = return_none
@@ -344,9 +332,6 @@ class Loop(Generic[S, T, R_ENUM, R_INPS, R_OUTS]):
                 If a callable, it accepts the loop variable, returns a postfix (which can be of any type) on top of which `str()` is applied.
             total: Same as in [`tqdm.__init__()`](https://tqdm.github.io/docs/tqdm/#__init__), but can also be a callable that accepts an iterable and returns an int, which is used as the new `total`.
             kwargs: Forwarded to [`tqdm.__init__()`](https://tqdm.github.io/docs/tqdm/#__init__) as-is.
-
-        Returns:
-            Returns `self` to allow for further method chaining.
 
         !!! note
 
