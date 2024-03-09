@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 
 class Progbar(Protocol):
-    def __enter__(self):
+    def __enter__(self) -> 'Progbar':
         ...
 
     def __exit__(self, exc_type, exc_val, exc_tb):
