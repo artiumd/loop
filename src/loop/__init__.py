@@ -9,4 +9,3 @@ except PackageNotFoundError:
 
 
 from .core import Loop, loop_over, loop_range
-from .iteration import batched
